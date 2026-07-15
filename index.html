@@ -148,7 +148,7 @@
   <!-- ৩. মেইন রেজাল্ট কার্ড -->
   <div class="total-card">
     <div class="total-title">TOTAL COST (BDT)</div>
-    <div class="total-bdt" id="totalBDT">৳ 0.00</div>
+    <div class="total-bdt" id="totalBDT">৳ 0</div>
     <div class="total-gbp" id="totalGBP">Equivalent to £ 0.00</div>
   </div>
 
@@ -159,7 +159,7 @@
     <div class="breakdown-row">
       <span class="breakdown-label">Product Base Price</span>
       <div class="breakdown-values">
-        <div class="bold-text" id="baseBDT">৳ 0.00</div>
+        <div class="bold-text" id="baseBDT">৳ 0</div>
         <div style="font-size: 12px; color: #999;" id="baseGBP">£ 0.00</div>
       </div>
     </div>
@@ -172,7 +172,7 @@
     <div class="breakdown-row">
       <span class="breakdown-label">Shipping & Service Charge</span>
       <div class="breakdown-values">
-        <div class="bold-text" id="serviceBDT">৳ 0.00</div>
+        <div class="bold-text" id="serviceBDT">৳ 0</div>
         <div style="font-size: 12px; color: #999;" id="serviceGBP">£ 0.00</div>
       </div>
     </div>
@@ -181,13 +181,13 @@
 
     <div class="breakdown-row" style="font-size: 16px; font-weight: bold;">
       <span>Total Payable</span>
-      <span style="color: #008080;" id="finalTotalCombined">£ 0.00 / ৳ 0.00</span>
+      <span style="color: #008080;" id="finalTotalCombined">£ 0.00 / ৳ 0</span>
     </div>
   </div>
 </div>
 
 <script>
-  // বিজনেসের গোপন ভ্যালুসমূহ (সম্পূর্ণ হাইড করা, বাইরে কোনো ব্রেকডাউন দেখাবে না)
+  // বিজনেসের গোপন ভ্যালুসমূহ (সম্পূর্ণ হাইড করা)
   const exchangeRate = 170.0; // পাউন্ড রেট ১৭০ টাকা
   const shippingRate = 7.0;   // প্রতি কেজি £৭
   const marginPercent = 30.0; // আপনার মার্জিন ৩০%
@@ -231,29 +231,29 @@
     // ৪. মার্জিন
     const marginCostGBP = priceGBP * (marginPercent / 100);
 
-    // ৫. সিক্রেট কম্বাইন্ড সার্ভিস চার্জ
+    // ৫. সিক্রেট কম্বাইন্ড সার্ভিস চার্জ (টাকায় রূপান্তর করে Round Off করা হয়েছে)
     const combinedServiceGBP = shippingCostGBP + marginCostGBP;
-    const combinedServiceBDT = combinedServiceGBP * exchangeRate;
+    const combinedServiceBDT = Math.round(combinedServiceGBP * exchangeRate);
 
-    // ৬. সর্বমোট হিসাব
+    // ৬. সর্বমোট হিসাব (টাকায় রূপান্তর করে Round Off করা হয়েছে)
     const totalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
-    const totalCostBDT = totalCostGBP * exchangeRate;
+    const totalCostBDT = Math.round(totalCostGBP * exchangeRate);
 
-    const baseBDT = priceGBP * exchangeRate;
+    const baseBDT = Math.round(priceGBP * exchangeRate);
 
     // ইউজার ইন্টারফেসে ডাটা আপডেট
-    document.getElementById('totalBDT').innerText = '৳ ' + totalCostBDT.toFixed(2);
+    document.getElementById('totalBDT').innerText = '৳ ' + totalCostBDT;
     document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + totalCostGBP.toFixed(2);
     
-    document.getElementById('baseBDT').innerText = '৳ ' + baseBDT.toFixed(2);
+    document.getElementById('baseBDT').innerText = '৳ ' + baseBDT;
     document.getElementById('baseGBP').innerText = '£ ' + priceGBP.toFixed(2);
 
     document.getElementById('displayWeight').innerText = weightInput + ' ' + unit;
 
-    document.getElementById('serviceBDT').innerText = '৳ ' + combinedServiceBDT.toFixed(2);
+    document.getElementById('serviceBDT').innerText = '৳ ' + combinedServiceBDT;
     document.getElementById('serviceGBP').innerText = '£ ' + combinedServiceGBP.toFixed(2);
 
-    document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT.toFixed(2);
+    document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT;
   }
 
   // প্রথমবার পেজ লোড হবার সময় হিসাব রান করার জন্য
