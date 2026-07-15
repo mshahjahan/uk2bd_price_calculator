@@ -15,6 +15,7 @@
       --text-muted: #64748b;
       --border: #e0f2fe;         /* Light Blue Border */
       --success: #10b981;
+      --error: #ef4444;
     }
 
     * {
@@ -179,7 +180,7 @@
       gap: 8px;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       padding: 12px;
       border: 1px solid #cbd5e1;
@@ -191,7 +192,12 @@
       transition: all 0.2s;
     }
 
-    input:focus, select:focus {
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
       background: white;
       box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
@@ -367,7 +373,7 @@
       margin-top: 10px;
     }
 
-    /* Modal */
+    /* Modal Styling */
     .modal {
       display: none;
       position: fixed;
@@ -387,10 +393,11 @@
       background: white;
       padding: 24px;
       border-radius: 20px;
-      max-width: 460px;
+      max-width: 480px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
     .bank-box {
@@ -398,7 +405,24 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 14px;
-      margin: 14px 0;
+      margin: 10px 0 16px 0;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-group label span {
+      color: var(--error);
     }
 
     .upload-area {
@@ -409,13 +433,21 @@
       text-align: center;
       cursor: pointer;
       margin-bottom: 14px;
+      position: relative;
+    }
+
+    .upload-area.error {
+      border-color: var(--error);
+      background: #fef2f2;
     }
 
     .btn-whatsapp {
       background-color: #25d366;
       color: white;
       width: 100%;
-      padding: 12px;
+      padding: 14px;
+      font-size: 15px;
+      box-shadow: 0 4px 6px -1px rgba(37, 211, 102, 0.3);
     }
 
     /* 📱 RESPONSIVE MOBILE MEDIA QUERIES */
@@ -434,11 +466,6 @@
         font-size: 18px;
       }
 
-      /* মোবাইল ভিউতে ক্যাটাগরি মেনুটি হরাইজন্টাল স্ক্রোল হবে */
-      .sidebar-title {
-        padding-left: 4px;
-      }
-
       .category-menu {
         flex-direction: row;
         overflow-x: auto;
@@ -455,7 +482,7 @@
       }
 
       .category-item:hover, .category-item.active {
-        transform: none; /* ডিজেবল অ্যানিমেশন ফর মোবাইল */
+        transform: none;
       }
 
       .cart-sidebar {
@@ -489,7 +516,7 @@
 
 <div class="app-layout">
   
-  <!-- ১. ক্যাটাগরি মেনু সাইডবার (মোবাইলে হরাইজন্টাল স্ক্রোল হবে) -->
+  <!-- ১. ক্যাটাগরি ফিল্টার মেনু -->
   <aside class="sidebar">
     <div class="sidebar-title">ক্যাটাগরি ফিল্টার</div>
     <ul class="category-menu">
@@ -527,7 +554,6 @@
   <!-- ২. মিডল প্যানেল: AI ক্যাটালগ ও সার্চ ইঞ্জিন -->
   <main class="main-content">
     
-    <!-- সার্চ ইঞ্জিন বক্স -->
     <div class="card" style="background: linear-gradient(135deg, #ffffff, #f0f9ff);">
       <div class="card-title">AI Smart Link Importer</div>
       <div class="search-box">
@@ -537,7 +563,7 @@
       <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">✨ লিংক সার্চ করলেই AI স্বয়ংক্রিয়ভাবে ক্যাটাগরি চিনে নিচের ক্যাটালগ গ্রিডে প্রোডাক্টটি লাইভ যুক্ত করে দেবে।</p>
     </div>
 
-    <!-- ডাইনামিক এআই ক্যাটালগ গ্রিড -->
+    <!-- লাইভ প্রোডাক্ট ক্যাটালগ গ্রিড -->
     <div class="card">
       <div class="card-title">
         Live Product Catalogue
@@ -545,7 +571,7 @@
       </div>
       
       <div class="catalogue-grid" id="catalogueContainer">
-        <!-- প্রোডাক্ট ক্যাটালগ কার্ড এখানে স্ক্রিপ্ট দিয়ে লোড হবে -->
+        <!-- প্রোডাক্ট ক্যাটালগ কার্ড ডাইনামিকভাবে স্ক্রিপ্ট দ্বারা লোড হবে -->
       </div>
     </div>
 
@@ -585,7 +611,7 @@
       </div>
 
       <button class="btn btn-primary btn-payment" id="paymentBtn" onclick="openPaymentModal()" disabled>
-        Proceed to Bank Payment 🏦
+        Proceed to Payment 🏦
       </button>
     </div>
 
@@ -593,39 +619,66 @@
 
 </div>
 
-<!-- ব্যাংক পেমেন্ট পপআপ মোডাল -->
+<!-- কাস্টমার ফর্ম এবং পেমেন্ট পপআপ মোডাল -->
 <div class="modal" id="paymentModal">
   <div class="modal-content">
-    <h3 style="color: var(--secondary); margin-bottom: 8px;">Bank Deposit Details</h3>
-    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">অর্ডার কনফার্ম করতে নিচের ব্যাংক একাউন্টে টাকা পাঠিয়ে প্রুফ দিন।</p>
+    <h3 style="color: var(--secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">📋 Order & Payment Details</h3>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">অর্ডারটি সম্পন্ন করতে নিচের ফর্মের সবকটি বাধ্যতামূলক ক্ষেত্র পূরণ করুন।</p>
     
+    <!-- ব্যাংক একাউন্ট সেকশন -->
     <div class="bank-box">
+      <div style="font-weight: bold; font-size: 13px; margin-bottom: 8px; color: var(--primary-hover);">Depositing Account:</div>
       <div class="bill-row"><span>Bank:</span><span style="font-weight:bold;">Standard Chartered Bank</span></div>
       <div class="bill-row"><span>Branch:</span><span style="font-weight:bold;">Gulshan Branch</span></div>
       <div class="bill-row"><span>A/C Name:</span><span style="font-weight:bold;">MD SHAHJAHAN</span></div>
       <div class="bill-row"><span>A/C Number:</span><span style="font-weight:bold; font-family: monospace;">18 1135926 01</span></div>
     </div>
 
-    <div style="text-align: center; margin-bottom: 12px;">
-      <span style="font-size: 11px; font-weight: bold; color: var(--text-muted);">TOTAL PAYABLE AMOUNT</span>
-      <div class="total-bold" style="color: var(--success);" id="modalAmountBDT">৳0</div>
-    </div>
+    <!-- বাধ্যতামূলক কাস্টমার ফর্ম -->
+    <form id="customerOrderForm" onsubmit="event.preventDefault();">
+      
+      <div class="form-group">
+        <label for="custName">Customer Full Name <span>*</span></label>
+        <input type="text" id="custName" placeholder="আপনার পূর্ণ নাম লিখুন" required>
+      </div>
 
-    <div class="upload-area" onclick="document.getElementById('paymentProofInput').click()">
-      <div style="font-size: 13px; font-weight: bold; color: var(--primary-hover);">📸 Upload Payment Slip/Screenshot</div>
-      <input type="file" id="paymentProofInput" accept="image/*" style="display: none;" onchange="handleProofUpload()">
-      <center><img id="filePreview" style="max-width: 80px; max-height: 80px; margin-top: 6px; border-radius: 4px; display: none;"></center>
-    </div>
+      <div class="form-group">
+        <label for="custPhone">Phone Number <span>*</span></label>
+        <input type="tel" id="custPhone" placeholder="যেমন: 017XXXXXXXX" required>
+      </div>
 
-    <button class="btn btn-whatsapp" id="whatsAppBtn" style="display: none; width:100%; border-radius:10px;" onclick="sendWhatsAppNotification()">
-      💬 Send Receipt & Order to WhatsApp
-    </button>
-    <button class="btn btn-primary" style="background: var(--text-muted); width: 100%; margin-top: 6px;" onclick="closePaymentModal()">Close</button>
+      <div class="form-group">
+        <label for="custAddress">Full Delivery Address <span>*</span></label>
+        <textarea id="custAddress" placeholder="হাউজ নম্বর, রোড, এলাকা, থানা এবং জেলা উল্লেখ করুন" required></textarea>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 14px; background: #f0fdf4; padding: 10px; border-radius: 10px;">
+        <span style="font-size: 11px; font-weight: bold; color: var(--text-muted);">TOTAL PAYABLE AMOUNT</span>
+        <div class="total-bold" style="color: var(--success); font-size: 22px;" id="modalAmountBDT">৳0</div>
+      </div>
+
+      <!-- বাধ্যতামূলক পেমেন্ট প্রুফ আপলোড -->
+      <div class="form-group">
+        <label>Upload Payment Receipt/Screenshot <span>*</span></label>
+        <div class="upload-area" id="uploadBox" onclick="document.getElementById('paymentProofInput').click()">
+          <div style="font-size: 13px; font-weight: bold; color: var(--primary-hover);" id="uploadText">📸 Click to Upload Receipt</div>
+          <input type="file" id="paymentProofInput" accept="image/*" style="display: none;" onchange="handleProofUpload()" required>
+          <center><img id="filePreview" style="max-width: 100px; max-height: 100px; margin-top: 8px; border-radius: 6px; display: none;"></center>
+        </div>
+      </div>
+
+      <!-- সাবমিট অর্ডার বাটন (হোয়াটসঅ্যাপে রিডাইরেক্ট করবে) -->
+      <button type="button" class="btn btn-whatsapp" id="whatsAppBtn" onclick="submitOrderForm()">
+        💬 Submit Order & Send Details
+      </button>
+      
+      <button type="button" class="btn btn-primary" style="background: var(--text-muted); width: 100%; margin-top: 8px;" onclick="closePaymentModal()">Cancel</button>
+    </form>
   </div>
 </div>
 
 <script>
-  // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ এখানে বসাবেন
+  // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ (যেমন: 88017XXXXXXXX) নিচে সেট করুন
   const myWhatsAppNumber = "8801700000000"; 
 
   const exchangeRate = 170.0; 
@@ -643,6 +696,7 @@
   let activeFilterCategory = "All";
   let globalFinalTotalBDT = 0;
   let globalTotalWeightKG = 0;
+  let proofUploaded = false; // পেমেন্ট প্রুফ আপলোড ট্র্যাকিং ভেরিয়েবল
 
   function classifyCategoryByAI(productName) {
     const pName = productName.toLowerCase();
@@ -862,9 +916,13 @@
   function openPaymentModal() {
     document.getElementById('modalAmountBDT').innerText = '৳' + globalFinalTotalBDT.toLocaleString();
     document.getElementById('paymentModal').style.display = 'flex';
-    document.getElementById('paymentProofInput').value = "";
+    
+    // রিসেট ফর্ম ভ্যালু এবং স্টেটমেন্ট
+    document.getElementById('customerOrderForm').reset();
     document.getElementById('filePreview').style.display = "none";
-    document.getElementById('whatsAppBtn').style.display = "none";
+    document.getElementById('uploadText').innerText = "📸 Click to Upload Receipt";
+    document.getElementById('uploadBox').classList.remove('error');
+    proofUploaded = false;
   }
 
   function closePaymentModal() {
@@ -874,39 +932,64 @@
   function handleProofUpload() {
     const fileInput = document.getElementById('paymentProofInput');
     const preview = document.getElementById('filePreview');
-    const whatsAppBtn = document.getElementById('whatsAppBtn');
+    const uploadBox = document.getElementById('uploadBox');
+    const uploadText = document.getElementById('uploadText');
 
     if (fileInput.files && fileInput.files[0]) {
       const reader = new FileReader();
       reader.onload = function(e) {
         preview.src = e.target.result;
         preview.style.display = "block";
+        uploadText.innerText = "✓ Receipt Loaded Successfully!";
+        uploadBox.classList.remove('error');
+        proofUploaded = true;
       }
       reader.readAsDataURL(fileInput.files[0]);
-      whatsAppBtn.style.display = "block";
+    } else {
+      proofUploaded = false;
     }
   }
 
-  function sendWhatsAppNotification() {
-    if(myWhatsAppNumber.includes("X")) {
-      alert("কোডের শুরুতে myWhatsAppNumber ভেরিয়েবলে আপনার সঠিক হোয়াটসঅ্যাপ নম্বর দিন।");
+  // ফর্মের ডেটা এবং প্রুফ ভ্যালিডেশন করে সাবমিট করার মেথড
+  function submitOrderForm() {
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
+    const uploadBox = document.getElementById('uploadBox');
+
+    // ফর্ম ফিল্ড ভ্যালিডেশন চেক
+    if (!name || !phone || !address) {
+      alert("দয়া করে ফর্মের সবকটি বাধ্যতামূলক ক্ষেত্র পূরণ করুন!");
       return;
     }
 
+    // পেমেন্ট প্রুফ ভ্যালিডেশন চেক
+    if (!proofUploaded) {
+      uploadBox.classList.add('error');
+      alert("অর্ডার কনফার্ম করতে পেমেন্ট স্ক্রিনশট বা রিসিপ্ট আপলোড করা বাধ্যতামূলক!");
+      return;
+    }
+
+    // হোয়াটসঅ্যাপ মেসেজ বিল্ডার
     let itemDetails = "";
     cart.forEach((item, index) => {
       itemDetails += `${index + 1}. ${item.name} (Qty: ${item.qty})\n`;
     });
 
-    const message = `🔔 *New Paid Order - বিলেতী পণ্য* 🔔\n\n` +
-                    `📦 *Products Line*:\n${itemDetails}\n` +
+    const message = `🔔 *New Order Requested - বিলেতী পণ্য* 🔔\n\n` +
+                    `👤 *Customer Info*:\n` +
+                    `- Name: ${name}\n` +
+                    `- Phone: ${phone}\n` +
+                    `- Delivery Address: ${address}\n\n` +
+                    `📦 *Ordered Items*:\n${itemDetails}\n` +
                     `⚖️ *Weight Total*: ${globalTotalWeightKG.toFixed(3)} KG\n` +
-                    `💰 *Paid Total*: ${globalFinalTotalBDT} BDT\n\n` +
-                    `🏦 *Gateway*:\n` +
+                    `💰 *Paid Total*: ৳${globalFinalTotalBDT.toLocaleString()}\n\n` +
+                    `🏦 *Gateway Detail*:\n` +
                     `Standard Chartered Bank (Gulshan Branch)\n` +
                     `A/C: MD SHAHJAHAN (18 1135926 01)\n\n` +
-                    `📎 _পেমেন্ট স্ক্রিনশট এবং স্লিপটি আপলোড করা হয়েছে, অনুগ্রহ করে চেক করুন।_`;
+                    `📎 _পেমেন্ট স্ক্রিনশট/স্লিপটি ফর্মে আপলোড করা হয়েছে। অনুগ্রহ করে হোয়াটসঅ্যাপেও ইমেজটি এটাচ করে সেন্ড করুন।_`;
 
+    // হোয়াটসঅ্যাপে রিডাইরেক্ট
     window.open(`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
