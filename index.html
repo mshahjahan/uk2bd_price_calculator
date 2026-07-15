@@ -1,84 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <title>Beleti Ponno | Professional E-commerce</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>.tab-active { border-bottom: 2px solid #0284c7; color: #0284c7; }</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>বিলেতী পণ্য | প্রফেশনাল ই-কমার্স</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: bold; }
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-slate-50 min-h-screen">
 
-    <!-- Navbar -->
-    <nav class="bg-white border-b px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black text-sky-600">BELETI PONNO</div>
-        <div class="flex gap-8 font-bold text-slate-600">
-            <button onclick="showView('storefront')" class="tab-active" id="btn-storefront">📦 Storefront</button>
-            <button onclick="showView('orders')" id="btn-orders">📋 Order Management</button>
+<!-- নেভিগেশন -->
+<nav class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+  <div class="text-2xl font-black text-sky-600">বিলেতী পণ্য</div>
+  <div class="flex gap-8 text-slate-600">
+    <button onclick="switchView('storefront')" class="tab-active" id="btn-storefront">📦 স্টোরফ্রন্ট</button>
+    <button onclick="switchView('orders')" id="btn-orders">📋 অর্ডার ডাটাবেস</button>
+  </div>
+</nav>
+
+<!-- গুগল শিট কানেক্টর (Sheet Monkey) -->
+<form id="orderForm" action="YOUR_SHEET_MONKEY_URL" method="POST" class="hidden">
+  <input type="hidden" name="Name" id="formName">
+  <input type="hidden" name="Phone" id="formPhone">
+  <input type="hidden" name="Address" id="formAddress">
+  <input type="hidden" name="Total" id="formTotal">
+  <input type="hidden" name="Order_ID" id="formOrderId">
+</form>
+
+<main class="max-w-7xl mx-auto p-6">
+  
+  <!-- ১. স্টোরফ্রন্ট -->
+  <section id="storefront" class="view active grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="md:col-span-2 space-y-6">
+      <div class="bg-white p-6 rounded-xl border shadow-sm">
+        <h2 class="font-bold mb-2">এআই (AI) প্রোডাক্ট ইম্পোর্টার</h2>
+        <div class="flex gap-2">
+          <input type="text" id="productLink" class="border p-2 rounded flex-1" placeholder="ইউকে (UK) লিংকটি এখানে দিন...">
+          <button onclick="simulateFetch()" class="bg-sky-600 text-white px-6 py-2 rounded font-bold hover:bg-sky-700">ইম্পোর্ট</button>
         </div>
-    </nav>
+      </div>
+      <div id="catalogueContainer" class="grid grid-cols-2 gap-4"></div>
+    </div>
+    
+    <!-- শপিং কার্ট -->
+    <div class="bg-white p-6 rounded-xl border shadow-sm h-fit sticky top-24">
+      <h2 class="font-bold text-lg mb-4">শপিং ব্যাগ</h2>
+      <div id="cartItems" class="space-y-2 text-sm text-slate-600">কার্টটি খালি...</div>
+      <div class="border-t mt-4 pt-4 font-bold text-xl" id="cartTotal">মোট: ৳০</div>
+      <button onclick="handleCheckout()" class="w-full mt-4 bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700">অর্ডার কনফার্ম করুন</button>
+    </div>
+  </section>
 
-    <!-- Hidden Form for Sheet Monkey -->
-    <form id="orderForm" action="YOUR_SHEET_MONKEY_URL" method="POST" class="hidden">
-        <input type="hidden" name="Name" id="formName">
-        <input type="hidden" name="Phone" id="formPhone">
-        <input type="hidden" name="Total" id="formTotal">
-        <input type="hidden" name="Order_ID" id="formOrderId">
-    </form>
+  <!-- ২. অর্ডার ডাটাবেস -->
+  <section id="orders" class="view">
+    <div class="bg-white rounded-xl border shadow-sm p-6">
+      <h2 class="text-xl font-bold mb-6">অর্ডার ডাটাবেস (সরাসরি গুগল শিট থেকে)</h2>
+      <table class="w-full text-left">
+        <thead class="bg-slate-100"><tr><th class="p-3">অর্ডার আইডি</th><th class="p-3">গ্রাহক</th><th class="p-3">মোট</th><th class="p-3">অবস্থা</th></tr></thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
 
-    <main class="max-w-7xl mx-auto p-6">
-        <!-- 1. Storefront View -->
-        <section id="storefront-view" class="space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border">
-                <h2 class="text-lg font-bold mb-4">AI Product Importer</h2>
-                <div class="flex gap-2">
-                    <input type="text" id="link" class="border p-2 rounded flex-1" placeholder="Paste UK Link...">
-                    <button onclick="fetchProduct()" class="bg-sky-600 text-white px-4 py-2 rounded">Import</button>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="productGrid">
-                <!-- Products will appear here -->
-            </div>
-        </section>
+<script>
+  let cart = [];
+  let catalogueProducts = [];
 
-        <!-- 2. Order Management View -->
-        <section id="orders-view" class="hidden">
-            <div class="bg-white rounded-xl shadow-sm border p-6">
-                <h2 class="text-xl font-bold mb-4">Live Order Database</h2>
-                <p class="text-sm text-slate-500 mb-4">All orders are synced to your linked Google Sheet.</p>
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50"><tr><th class="p-3">Order ID</th><th class="p-3">Customer</th><th class="p-3">Total</th></tr></thead>
-                    <tbody id="orderTableBody"></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
+  function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(view).classList.add('active');
+    document.getElementById('btn-storefront').classList.toggle('tab-active', view === 'storefront');
+    document.getElementById('btn-orders').classList.toggle('tab-active', view === 'orders');
+  }
 
-    <script>
-        let cartTotal = 0;
+  function simulateFetch() {
+    const p = { id: Date.now(), name: "প্রিমিয়াম পণ্য " + (catalogueProducts.length + 1), price: 5200, image: "https://via.placeholder.com/150" };
+    catalogueProducts.push(p);
+    renderCatalogue();
+  }
 
-        function showView(v) {
-            document.getElementById('storefront-view').classList.toggle('hidden', v !== 'storefront');
-            document.getElementById('orders-view').classList.toggle('hidden', v !== 'orders');
-        }
+  function renderCatalogue() {
+    const container = document.getElementById('catalogueContainer');
+    container.innerHTML = catalogueProducts.map(p => `
+      <div class="bg-white p-4 rounded-lg border shadow-sm">
+        <img src="${p.image}" class="w-full h-32 object-cover mb-2 rounded">
+        <p class="font-bold">${p.name}</p>
+        <p class="text-sky-600 font-semibold">৳৫,২০০</p>
+        <button onclick="addToCart(${p.id})" class="bg-sky-100 text-sky-700 w-full mt-2 py-1 rounded font-bold">কার্টে যোগ করুন</button>
+      </div>
+    `).join('');
+  }
 
-        function fetchProduct() {
-            // Your existing AI logic here
-            alert("Product imported to catalog!");
-        }
+  function addToCart(id) {
+    cart.push(catalogueProducts.find(p => p.id === id));
+    document.getElementById('cartItems').innerHTML = cart.map(i => `<div>- ${i.name}</div>`).join('');
+    document.getElementById('cartTotal').innerText = "মোট: ৳" + (cart.length * 5200);
+  }
 
-        function proceedToCheckout() {
-            const name = prompt("Enter your name:");
-            const phone = prompt("Enter your phone number:");
-            
-            if(name && phone) {
-                document.getElementById('formName').value = name;
-                document.getElementById('formPhone').value = phone;
-                document.getElementById('formTotal').value = "৳5200";
-                document.getElementById('formOrderId').value = "BP-" + Math.floor(Math.random()*9999);
-                
-                document.getElementById('orderForm').submit();
-            }
-        }
-    </script>
+  function handleCheckout() {
+    const name = prompt("আপনার নাম:");
+    const phone = prompt("ফোন নম্বর:");
+    const address = prompt("ঠিকানা:");
+    
+    if(name && phone) {
+      document.getElementById('formName').value = name;
+      document.getElementById('formPhone').value = phone;
+      document.getElementById('formAddress').value = address;
+      document.getElementById('formTotal').value = (cart.length * 5200);
+      document.getElementById('formOrderId').value = "BP-" + Date.now();
+      
+      document.getElementById('orderForm').submit();
+      
+      const tbody = document.getElementById('orderTableBody');
+      tbody.innerHTML += `<tr><td class="p-3 font-mono">BP-${Date.now()}</td><td class="p-3">${name}</td><td class="p-3">৳${cart.length * 5200}</td><td class="p-3 text-green-600 font-bold">ইন-প্রসেস</td></tr>`;
+      alert("অর্ডার সফল হয়েছে!");
+    }
+  }
+</script>
 </body>
 </html>
