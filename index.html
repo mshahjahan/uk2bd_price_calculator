@@ -3,62 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>বিলেতী পণ্য - Admin Portal</title>
+  <title>বিলেতী পণ্য - Premium Light Blue Theme</title>
   <style>
-    /* পূর্ববর্তী স্টাইলগুলো অপরিবর্তিত থাকবে, শুধু নতুনগুলো যোগ করা হলো */
-    :root { --primary: #0284c7; --secondary: #0f172a; --success: #10b981; }
-    
-    body { font-family: sans-serif; background: #f0f9ff; }
-    .nav-tabs { display: flex; gap: 20px; padding: 20px; background: white; margin-bottom: 20px; border-bottom: 2px solid #e0f2fe; }
-    .tab-link { cursor: pointer; font-weight: bold; padding: 10px; }
-    .tab-link.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
-    
-    .content-section { display: none; padding: 20px; }
+    :root {
+      --primary-light: #e0f2fe;    /* Very Light Sky */
+      --primary: #0284c7;          /* Sky Blue */
+      --primary-dark: #0369a1;     /* Deep Sky */
+      --bg: #f8fafc;               /* Off-White/Blueish */
+      --text: #0f172a;
+      --card-bg: #ffffff;
+      --border: #bae6fd;
+    }
+
+    body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; }
+
+    /* Navigation Tabs */
+    .nav-container { background: white; padding: 15px 20px; border-bottom: 2px solid var(--primary-light); display: flex; gap: 20px; }
+    .tab-link { cursor: pointer; font-weight: 600; padding: 8px 16px; border-radius: 8px; transition: 0.3s; color: var(--primary-dark); }
+    .tab-link.active { background: var(--primary-light); color: var(--primary-dark); }
+
+    .content-section { display: none; padding: 20px; max-width: 1200px; margin: auto; }
     .content-section.active { display: block; }
 
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f8fafc; font-size: 13px; }
-    .btn-print { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+    /* Table Styling */
+    .order-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th { background: var(--primary-light); color: var(--primary-dark); padding: 12px; text-align: left; }
+    td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+    
+    .btn-action { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    .btn-action:hover { background: var(--primary-dark); }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 400px; }
   </style>
 </head>
 <body>
 
-<div class="nav-tabs">
+<!-- Navigation -->
+<div class="nav-container">
   <div class="tab-link active" onclick="showTab('catalogue')">📦 Storefront</div>
   <div class="tab-link" onclick="showTab('orders')">📋 Order Management</div>
 </div>
 
-<!-- ক্যাটালগ সেকশন (আগের মতো) -->
+<!-- 1. Storefront -->
 <div id="catalogue" class="content-section active">
-   <!-- এখানে আপনার পূর্বের ক্যাটালগ কোডটি বসবে -->
-   <p>ক্যাটালগ এবং কার্ট সিস্টেম এখানে থাকবে...</p>
+  <div class="order-card">
+    <h2>Welcome to Beleti Ponno</h2>
+    <p>লাইট স্কাই ব্লু থিমে আপনার প্রোডাক্ট ক্যাটালগ এখানে প্রদর্শিত হবে।</p>
+    <!-- আপনার আগের ক্যাটালগ গ্রিড কোড এখানে বসবে -->
+    <button class="btn-action" onclick="alert('Proceeding to Checkout...')">Proceed to Checkout</button>
+  </div>
 </div>
 
-<!-- অর্ডার ম্যানেজমেন্ট সেকশন -->
+<!-- 2. Order Management -->
 <div id="orders" class="content-section">
-  <div style="background: white; padding: 20px; border-radius: 12px;">
-    <h2>Customer Orders</h2>
+  <div class="order-card">
+    <h2>📋 Customer Orders</h2>
     <table id="orderTable">
       <thead>
         <tr>
           <th>Order ID</th>
-          <th>Customer Name</th>
+          <th>Customer</th>
           <th>Phone</th>
-          <th>Address</th>
-          <th>Total Amount</th>
-          <th>Action</th>
+          <th>Amount</th>
+          <th>Invoice</th>
         </tr>
       </thead>
       <tbody id="orderTableBody">
-        <!-- অর্ডারের ডেটা এখানে ডাইনামিকভাবে আসবে -->
+        <!-- অর্ডারের ডেটা এখানে ডাইনামিকভাবে জমা হবে -->
       </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  // ট্যাব সুইচিং ফাংশন
   function showTab(tabId) {
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
@@ -66,34 +86,37 @@
     event.currentTarget.classList.add('active');
   }
 
-  // অর্ডার সাবমিট করার পর টেবিল আপডেট করার ফাংশন
-  function submitOrderForm() {
-    const name = document.getElementById('custName').value;
-    const phone = document.getElementById('custPhone').value;
-    const address = document.getElementById('custAddress').value;
-    const amount = document.getElementById('modalAmountBDT').innerText;
-
+  // অর্ডারের ডেটা টেবিল এবং ইনভয়েস জেনারেশন
+  function submitOrder(customerName, phone, amount, items) {
     const tableBody = document.getElementById('orderTableBody');
-    const orderId = "ORD-" + Math.floor(Math.random() * 10000);
+    const orderId = "ORD-" + Math.floor(Math.random() * 9000);
     
     const row = `<tr>
       <td>${orderId}</td>
-      <td>${name}</td>
+      <td>${customerName}</td>
       <td>${phone}</td>
-      <td>${address}</td>
       <td>${amount}</td>
-      <td><button class="btn-print" onclick="printInvoice('${orderId}')">Print Invoice</button></td>
+      <td><button class="btn-action" onclick="printInvoice('${orderId}', '${customerName}', '${amount}')">Print Invoice</button></td>
     </tr>`;
     
     tableBody.innerHTML += row;
-    alert("অর্ডারটি সফলভাবে ডাটাবেসে যুক্ত হয়েছে!");
-    closePaymentModal();
   }
 
-  // ইনভয়েস প্রিন্ট করার জন্য
-  function printInvoice(id) {
+  function printInvoice(id, name, amount) {
     const printWindow = window.open('', '_blank');
-    printWindow.document.write(`<html><body><h1>Invoice ${id}</h1><p>আপনার ইনভয়েস ডিটেইলস এখানে থাকবে...</p></body></html>`);
+    printWindow.document.write(`
+      <style>
+        body { font-family: sans-serif; padding: 40px; color: #333; }
+        .header { border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 20px; }
+        .total { font-size: 20px; font-weight: bold; color: #0284c7; }
+      </style>
+      <div class="header"><h1>Invoice: ${id}</h1></div>
+      <p>Customer: ${name}</p>
+      <p>Total Amount: <span class="total">${amount}</span></p>
+      <hr>
+      <p>Thank you for shopping with Beleti Ponno!</p>
+    `);
+    printWindow.document.close();
     printWindow.print();
   }
 </script>
