@@ -79,6 +79,31 @@
       background-color: #a0d2d2;
       cursor: not-allowed;
     }
+    /* নতুন প্রোডাক্ট ইমেজ প্রিভিউ স্টাইল */
+    .product-preview {
+      display: none; /* প্রথমাবস্থায় বন্ধ থাকবে */
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 12px;
+      background: #fafafa;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed #ddd;
+    }
+    .product-preview img {
+      max-width: 150px;
+      max-height: 150px;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: white;
+    }
+    .product-preview-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
     .total-card {
       background-color: #e6f2f2;
       border: 1px solid #b2d8d8;
@@ -147,6 +172,12 @@
   <!-- ২. প্রোডাক্ট ডিটেইলস (নাম, দাম ও ওজন) -->
   <div class="card">
     
+    <!-- ইমেজ প্রিভিউ কন্টেইনার (ছবি পেলে ডাইনামিকলি চালু হবে) -->
+    <div class="product-preview" id="productPreview">
+      <img id="previewImg" src="" alt="Product Image">
+      <div class="product-preview-title" id="previewTitle">Product Preview</div>
+    </div>
+
     <div class="field-label">Product Name</div>
     <div class="input-group">
       <input type="text" id="productName" placeholder="প্রোডাক্টের নাম (ঐচ্ছিক)">
@@ -211,13 +242,11 @@
 </div>
 
 <script>
-  // বিজনেসের গোপন ভ্যালুসমূহ (সম্পূর্ণ হাইড করা)
   const exchangeRate = 170.0; // পাউন্ড রেট ১৭০ টাকা
   const shippingRate = 7.0;   // প্রতি কেজি £৭
   const marginPercent = 30.0; // আপনার মার্জিন ৩০%
   const bufferPercent = 30.0; // বাফার ওজন ৩০%
 
-  // লাইভ Python API স্ক্র্যাপার কানেকশন ফাংশন
   async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value;
     if (!linkInput) {
@@ -228,6 +257,9 @@
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Fetching...";
     fetchButton.disabled = true;
+
+    // নতুন প্রতিবার রিকোয়েস্টের শুরুতে প্রিভিউ হাইড করে দেওয়া
+    document.getElementById('productPreview').style.display = "none";
 
     try {
       const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
@@ -244,30 +276,34 @@
 
       const data = await response.json();
 
-      // সহজ এবং নির্ভুল ভ্যালিডেশন
       if (data.error || data.price === undefined || data.price === null) {
         alert("লিংক থেকে সঠিক দাম বা ওজন খুঁজে পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি সঠিক মান বসিয়ে নিন।");
       } else {
-        // স্ক্র্যাপার থেকে প্রোডাক্টের নাম পেলে বসানো
+        // প্রোডাক্টের নাম আপডেট
         if(data.name) {
            document.getElementById('productName').value = data.name;
         } else {
-           document.getElementById('productName').value = ""; // নাম না পেলে ফাঁকা রাখবে
+           document.getElementById('productName').value = "";
         }
 
-        // স্ক্র্যাপার থেকে সফলভাবে পাওয়া দাম ইনপুটে ২ ডেসিমেল ডটসহ সেট করা (যেমন: 1.00)
+        // প্রোডাক্টের ডেসিমেল প্রাইস আপডেট করা
         const parsedPrice = parseFloat(data.price);
         document.getElementById('productPrice').value = parsedPrice.toFixed(2);
         
-        // ওজনের নিরাপত্তা: যদি ওজন না পাওয়া যায় তবে ডিফল্ট ৫০০ গ্রাম ধরে নেবে
+        // ওজনের নিরাপত্তা ও সেট
         const finalWeight = (data.weight && parseFloat(data.weight) > 0) ? parseFloat(data.weight) : 500;
         document.getElementById('productWeight').value = finalWeight;
-        
         document.getElementById('weightUnit').value = data.unit || "Grams";
+
+        // --- নতুন ছবি প্রিভিউ যোগ করা ---
+        if (data.image) {
+          document.getElementById('previewImg').src = data.image;
+          document.getElementById('previewTitle').innerText = data.name || "Product Preview";
+          document.getElementById('productPreview').style.display = "flex"; // প্রিভিউ বক্স চালু করা হলো
+        }
         
-        // পুনরায় মোট হিসাব ক্যালকুলেট করা
         calculate();
-        alert('সফলভাবে লাইভ দাম এবং ওজন আপডেট করা হয়েছে!');
+        alert('সফলভাবে লাইভ দাম, ছবি এবং ওজন আপডেট করা হয়েছে!');
       }
     } catch (error) {
       console.error(error);
@@ -283,7 +319,6 @@
     const weightInput = parseFloat(document.getElementById('productWeight').value) || 0;
     const unit = document.getElementById('weightUnit').value;
 
-    // ১. কেজি কনভার্সন
     let baseWeightKG = 0;
     if (unit === 'Grams') {
       baseWeightKG = weightInput / 1000;
@@ -291,26 +326,18 @@
       baseWeightKG = weightInput;
     }
 
-    // ২. বাফার ওজন সহ টোটাল ওজন (ব্যাকগ্রাউন্ডে ৩০% বাফার যোগ হবে)
     const totalWeightKG = baseWeightKG + (baseWeightKG * (bufferPercent / 100));
-
-    // ৩. শিপিং খরচ
     const shippingCostGBP = totalWeightKG * shippingRate;
-
-    // ৪. মার্জিন
     const marginCostGBP = priceGBP * (marginPercent / 100);
 
-    // ৫. সিক্রেট কম্বাইন্ড সার্ভিস চার্জ (টাকায় রূপান্তর করে Round Off করা হয়েছে)
     const combinedServiceGBP = shippingCostGBP + marginCostGBP;
     const combinedServiceBDT = Math.round(combinedServiceGBP * exchangeRate);
 
-    // ৬. সর্বমোট হিসাব (টাকায় রূপান্তর করে Round Off করা হয়েছে)
     const totalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
     const totalCostBDT = Math.round(totalCostGBP * exchangeRate);
 
     const baseBDT = Math.round(priceGBP * exchangeRate);
 
-    // ইউজার ইন্টারফেসে ডাটা আপডেট
     document.getElementById('totalBDT').innerText = '৳ ' + totalCostBDT;
     document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + totalCostGBP.toFixed(2);
     
@@ -325,7 +352,6 @@
     document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT;
   }
 
-  // প্রথমবার পেজ লোড হবার সময় প্রাথমিক হিসাব দেখানোর জন্য
   calculate();
 </script>
 
