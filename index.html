@@ -1,125 +1,152 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>বিলেতী পণ্য - Premium Light Blue Theme</title>
+  <title>Beleti Ponno - E-commerce Portal</title>
   <style>
     :root {
-      --primary-light: #e0f2fe;    /* Very Light Sky */
-      --primary: #0284c7;          /* Sky Blue */
-      --primary-dark: #0369a1;     /* Deep Sky */
-      --bg: #f8fafc;               /* Off-White/Blueish */
+      --primary-light: #e0f2fe;
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --bg: #f0f9ff;
       --text: #0f172a;
-      --card-bg: #ffffff;
+      --white: #ffffff;
       --border: #bae6fd;
     }
-
     body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; }
+    
+    /* Navigation */
+    .nav-tabs { background: var(--white); padding: 15px 30px; display: flex; gap: 20px; border-bottom: 2px solid var(--primary-light); }
+    .tab-link { cursor: pointer; font-weight: 600; padding: 10px 20px; border-radius: 8px; color: var(--primary-dark); transition: 0.3s; }
+    .tab-link.active { background: var(--primary-light); }
 
-    /* Navigation Tabs */
-    .nav-container { background: white; padding: 15px 20px; border-bottom: 2px solid var(--primary-light); display: flex; gap: 20px; }
-    .tab-link { cursor: pointer; font-weight: 600; padding: 8px 16px; border-radius: 8px; transition: 0.3s; color: var(--primary-dark); }
-    .tab-link.active { background: var(--primary-light); color: var(--primary-dark); }
-
-    .content-section { display: none; padding: 20px; max-width: 1200px; margin: auto; }
+    .content-section { display: none; padding: 25px; max-width: 1100px; margin: auto; }
     .content-section.active { display: block; }
 
-    /* Table Styling */
-    .order-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th { background: var(--primary-light); color: var(--primary-dark); padding: 12px; text-align: left; }
-    td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+    /* Catalog & Cart */
+    .grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+    .card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+    .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+    .product-item { border: 1px solid var(--primary-light); padding: 10px; border-radius: 8px; text-align: center; }
     
-    .btn-action { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-    .btn-action:hover { background: var(--primary-dark); }
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th { background: var(--primary-light); color: var(--primary-dark); padding: 12px; text-align: left; }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
 
-    /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
-    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 400px; }
+    .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; background: var(--primary); color: white; }
+    input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+    .modal { display: none; position: fixed; top:0; left:0; width: 100%; height:100%; background: rgba(0,0,0,0.4); align-items:center; justify-content:center; }
+    .modal-content { background: white; padding: 30px; border-radius: 15px; width: 400px; }
   </style>
 </head>
 <body>
 
-<!-- Navigation -->
-<div class="nav-container">
-  <div class="tab-link active" onclick="showTab('catalogue')">📦 Storefront</div>
-  <div class="tab-link" onclick="showTab('orders')">📋 Order Management</div>
+<div class="nav-tabs">
+  <div class="tab-link active" onclick="switchTab(this, 'catalogue')">📦 Storefront</div>
+  <div class="tab-link" onclick="switchTab(this, 'orders')">📋 Order Management</div>
 </div>
 
-<!-- 1. Storefront -->
+<!-- 1. Storefront / E-commerce Section -->
 <div id="catalogue" class="content-section active">
-  <div class="order-card">
-    <h2>Welcome to Beleti Ponno</h2>
-    <p>লাইট স্কাই ব্লু থিমে আপনার প্রোডাক্ট ক্যাটালগ এখানে প্রদর্শিত হবে।</p>
-    <!-- আপনার আগের ক্যাটালগ গ্রিড কোড এখানে বসবে -->
-    <button class="btn-action" onclick="alert('Proceeding to Checkout...')">Proceed to Checkout</button>
+  <div class="grid">
+    <div class="card">
+      <h2>AI Product Importer</h2>
+      <input type="text" id="productLink" placeholder="Paste UK Product Link...">
+      <button class="btn" onclick="addDemoProduct()">Fetch & Add Product</button>
+      
+      <h3>Catalog</h3>
+      <div class="product-list" id="productContainer">
+        <!-- Products will load here -->
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3>Shopping Cart</h3>
+      <div id="cartItems">Cart is empty</div>
+      <hr>
+      <button class="btn" style="width:100%" onclick="openModal()">Proceed to Payment</button>
+    </div>
   </div>
 </div>
 
-<!-- 2. Order Management -->
+<!-- 2. Order Management Section -->
 <div id="orders" class="content-section">
-  <div class="order-card">
-    <h2>📋 Customer Orders</h2>
-    <table id="orderTable">
+  <div class="card">
+    <h2>Customer Orders</h2>
+    <table>
       <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Phone</th>
-          <th>Amount</th>
-          <th>Invoice</th>
-        </tr>
+        <tr><th>ID</th><th>Customer</th><th>Phone</th><th>Total</th><th>Action</th></tr>
       </thead>
-      <tbody id="orderTableBody">
-        <!-- অর্ডারের ডেটা এখানে ডাইনামিকভাবে জমা হবে -->
-      </tbody>
+      <tbody id="orderTableBody"></tbody>
     </table>
   </div>
 </div>
 
+<!-- Payment Modal -->
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <h3>Checkout Details</h3>
+    <input type="text" id="custName" placeholder="Full Name *" required>
+    <input type="tel" id="custPhone" placeholder="Phone Number *" required>
+    <textarea id="custAddress" placeholder="Full Delivery Address *" required></textarea>
+    <button class="btn" style="width: 100%;" onclick="processOrder()">Confirm & Place Order</button>
+    <button class="btn" style="width: 100%; background: #94a3b8; margin-top:5px;" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
 <script>
-  function showTab(tabId) {
+  let cart = [];
+  
+  function switchTab(el, id) {
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
   }
 
-  // অর্ডারের ডেটা টেবিল এবং ইনভয়েস জেনারেশন
-  function submitOrder(customerName, phone, amount, items) {
-    const tableBody = document.getElementById('orderTableBody');
+  function addDemoProduct() {
+    const list = document.getElementById('productContainer');
+    const id = Date.now();
+    list.innerHTML += `<div class="product-item" id="p${id}">
+      <p>Luxury Item ${Math.floor(Math.random()*100)}</p>
+      <button class="btn" onclick="addToCart('Luxury Item')">Add</button>
+    </div>`;
+  }
+
+  function addToCart(name) {
+    cart.push(name);
+    document.getElementById('cartItems').innerText = cart.join(', ');
+  }
+
+  function openModal() { document.getElementById('orderModal').style.display = 'flex'; }
+  function closeModal() { document.getElementById('orderModal').style.display = 'none'; }
+
+  function processOrder() {
+    const name = document.getElementById('custName').value;
+    const phone = document.getElementById('custPhone').value;
+    const address = document.getElementById('custAddress').value;
+
+    if(!name || !phone || !address) { alert("Please fill all fields!"); return; }
+
+    const tbody = document.getElementById('orderTableBody');
     const orderId = "ORD-" + Math.floor(Math.random() * 9000);
     
-    const row = `<tr>
-      <td>${orderId}</td>
-      <td>${customerName}</td>
-      <td>${phone}</td>
-      <td>${amount}</td>
-      <td><button class="btn-action" onclick="printInvoice('${orderId}', '${customerName}', '${amount}')">Print Invoice</button></td>
+    tbody.innerHTML += `<tr>
+      <td>${orderId}</td><td>${name}</td><td>${phone}</td><td>£50</td>
+      <td><button class="btn" onclick="printInvoice('${orderId}','${name}','${address}')">Print Invoice</button></td>
     </tr>`;
     
-    tableBody.innerHTML += row;
+    alert("Order Successful!");
+    closeModal();
   }
 
-  function printInvoice(id, name, amount) {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <style>
-        body { font-family: sans-serif; padding: 40px; color: #333; }
-        .header { border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 20px; }
-        .total { font-size: 20px; font-weight: bold; color: #0284c7; }
-      </style>
-      <div class="header"><h1>Invoice: ${id}</h1></div>
-      <p>Customer: ${name}</p>
-      <p>Total Amount: <span class="total">${amount}</span></p>
-      <hr>
-      <p>Thank you for shopping with Beleti Ponno!</p>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+  function printInvoice(id, name, addr) {
+    const w = window.open('', '_blank');
+    w.document.write(`<h1>Invoice ${id}</h1><p>Customer: ${name}</p><p>Address: ${addr}</p>`);
+    w.print();
   }
 </script>
-
 </body>
 </html>
