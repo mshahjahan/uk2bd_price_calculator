@@ -210,7 +210,6 @@
     fetchButton.disabled = true;
 
     try {
-      // আপনার রেন্ডার সার্ভার এপিআই এর ডোমেইন লিংক সেট করা হলো
       const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
       
       const response = await fetch(apiURL, {
@@ -219,23 +218,28 @@
         body: JSON.stringify({ url: linkInput })
       });
 
+      if (!response.ok) {
+        throw new Error("HTTP error " + response.status);
+      }
+
       const data = await response.json();
 
-      if (data.error) {
-        alert("লিংক থেকে স্বয়ংক্রিয়ভাবে ডাটা পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি দাম ও ওজন লিখে দিন।");
+      // স্ক্র্যাপার যদি দাম বা ওজন খুঁজে পেতে ব্যর্থ হয় (বা ডিফল্ট এরর দেয়)
+      if (data.error || !data.price || data.price === 20.0 && data.weight === 1000) {
+        alert("লিংক থেকে সঠিক তথ্য (দাম/ওজন) পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি সঠিক মান বসিয়ে নিন।");
       } else {
-        // স্ক্র্যাপার থেকে পাওয়া দাম ও ওজন ইনপুট বক্সে সেট করা
+        // স্ক্র্যাপার থেকে সফলভাবে এবং সঠিক ডাটা পেলেই কেবল ইনপুট পরিবর্তন হবে
         document.getElementById('productPrice').value = data.price;
         document.getElementById('productWeight').value = data.weight;
         document.getElementById('weightUnit').value = data.unit;
         
         // পুনরায় মোট হিসাব ক্যালকুলেট করা
         calculate();
-        alert('সফলভাবে দাম এবং ওজন আপডেট করা হয়েছে!');
+        alert('সফলভাবে লাইভ দাম এবং ওজন আপডেট করা হয়েছে!');
       }
     } catch (error) {
       console.error(error);
-      alert("সার্ভার কানেকশন এরর বা টাইমআউট হয়েছে! অনুগ্রহ করে ম্যানুয়ালি ইনপুট দিন।");
+      alert("দুঃখিত, এই লিংকটি স্বয়ংক্রিয়ভাবে রিড করা সম্ভব হচ্ছে না। দয়া করে নিচে দাম ও ওজন ম্যানুয়ালি লিখে দিন।");
     } finally {
       fetchButton.innerText = "Fetch";
       fetchButton.disabled = false;
