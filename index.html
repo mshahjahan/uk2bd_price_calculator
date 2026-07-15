@@ -16,8 +16,13 @@
     }
     body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; }
     
+    /* Header & Branding */
+    header { background: var(--white); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-light); }
+    .brand-name { font-size: 24px; font-weight: bold; color: var(--primary-dark); }
+    .fb-link { color: var(--primary); font-weight: 600; text-decoration: none; }
+
     /* Navigation */
-    .nav-tabs { background: var(--white); padding: 15px 30px; display: flex; gap: 20px; border-bottom: 2px solid var(--primary-light); }
+    .nav-tabs { background: var(--white); padding: 0 30px 15px 30px; display: flex; gap: 20px; }
     .tab-link { cursor: pointer; font-weight: 600; padding: 10px 20px; border-radius: 8px; color: var(--primary-dark); transition: 0.3s; }
     .tab-link.active { background: var(--primary-light); }
 
@@ -43,12 +48,17 @@
 </head>
 <body>
 
+<header>
+  <div class="brand-name">Beleti Ponno</div>
+  <div>Find us on: <a href="#" class="fb-link">facebook.com/BeletiPonno</a></div>
+</header>
+
 <div class="nav-tabs">
   <div class="tab-link active" onclick="switchTab(this, 'catalogue')">📦 Storefront</div>
   <div class="tab-link" onclick="switchTab(this, 'orders')">📋 Order Management</div>
 </div>
 
-<!-- 1. Storefront / E-commerce Section -->
+<!-- 1. Storefront -->
 <div id="catalogue" class="content-section active">
   <div class="grid">
     <div class="card">
@@ -56,10 +66,8 @@
       <input type="text" id="productLink" placeholder="Paste UK Product Link...">
       <button class="btn" onclick="addDemoProduct()">Fetch & Add Product</button>
       
-      <h3>Catalog</h3>
-      <div class="product-list" id="productContainer">
-        <!-- Products will load here -->
-      </div>
+      <h3>Available Catalog</h3>
+      <div class="product-list" id="productContainer"></div>
     </div>
     
     <div class="card">
@@ -71,7 +79,7 @@
   </div>
 </div>
 
-<!-- 2. Order Management Section -->
+<!-- 2. Order Management -->
 <div id="orders" class="content-section">
   <div class="card">
     <h2>Customer Orders</h2>
@@ -109,8 +117,8 @@
   function addDemoProduct() {
     const list = document.getElementById('productContainer');
     const id = Date.now();
-    list.innerHTML += `<div class="product-item" id="p${id}">
-      <p>Luxury Item ${Math.floor(Math.random()*100)}</p>
+    list.innerHTML += `<div class="product-item">
+      <p>Imported Item ${Math.floor(Math.random()*100)}</p>
       <button class="btn" onclick="addToCart('Luxury Item')">Add</button>
     </div>`;
   }
@@ -144,7 +152,7 @@
 
   function printInvoice(id, name, addr) {
     const w = window.open('', '_blank');
-    w.document.write(`<h1>Invoice ${id}</h1><p>Customer: ${name}</p><p>Address: ${addr}</p>`);
+    w.document.write(`<html><body style="font-family:sans-serif; padding:40px;"><h1>Invoice ${id}</h1><p>Customer: ${name}</p><p>Address: ${addr}</p></body></html>`);
     w.print();
   }
 </script>
