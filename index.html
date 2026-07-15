@@ -41,10 +41,20 @@
       margin-bottom: 12px;
       color: #333;
     }
+    .field-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .field-label:first-child {
+      margin-top: 0;
+    }
     .input-group {
       display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .input-group:last-child {
       margin-bottom: 0;
@@ -134,12 +144,21 @@
     </div>
   </div>
 
-  <!-- ২. প্রাইজ ও ওয়েট ইনপুট -->
+  <!-- ২. প্রোডাক্ট ডিটেইলস (নাম, দাম ও ওজন) -->
   <div class="card">
+    
+    <div class="field-label">Product Name</div>
     <div class="input-group">
-      <input type="number" id="productPrice" value="20.0" step="0.1" oninput="calculate()">
+      <input type="text" id="productName" placeholder="প্রোডাক্টের নাম (ঐচ্ছিক)">
+    </div>
+
+    <div class="field-label">Price</div>
+    <div class="input-group">
+      <input type="number" id="productPrice" value="20.00" step="0.01" oninput="calculate()">
       <span style="align-self: center; font-weight: bold; margin-left: 5px;">£ GBP</span>
     </div>
+
+    <div class="field-label">Weight</div>
     <div class="input-group">
       <input type="number" id="productWeight" value="1500" oninput="calculate()">
       <select id="weightUnit" onchange="calculate()">
@@ -147,6 +166,7 @@
         <option value="KG">KG</option>
       </select>
     </div>
+
   </div>
 
   <!-- ৩. মেইন রেজাল্ট কার্ড -->
@@ -224,23 +244,25 @@
 
       const data = await response.json();
 
-      // কঠোর ডাটা যাচাইকরণ (Strict Validation)
-      // ১. যদি সার্ভার থেকে কোনো error পাঠানো হয়
-      // ২. অথবা যদি দাম এবং ওজন দুটোই শূন্য (0) বা ফাঁকা থাকে
-      // ৩. অথবা যদি ডাটা হুবহু ডিফল্ট ডামি মানগুলোর সমান হয় (যা বোঝায় স্ক্র্যাপার আসল ডাটা খুঁজে পায়নি)
-      if (
-        data.error || 
-        !data.price || 
-        parseFloat(data.price) <= 0 || 
-        parseFloat(data.weight) <= 0 ||
-        (parseFloat(data.price) === 20.0 && parseFloat(data.weight) === 1000) ||
-        (parseFloat(data.price) === 20.0 && parseFloat(data.weight) === 1500)
-      ) {
+      // সহজ এবং নির্ভুল ভ্যালিডেশন
+      if (data.error || data.price === undefined || data.price === null) {
         alert("লিংক থেকে সঠিক দাম বা ওজন খুঁজে পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি সঠিক মান বসিয়ে নিন।");
       } else {
-        // সফলভাবে স্ক্র্যাপ করা সঠিক ডাটা পেলেই কেবল ইনপুট ফিল্ড আপডেট হবে
-        document.getElementById('productPrice').value = parseFloat(data.price);
-        document.getElementById('productWeight').value = parseFloat(data.weight);
+        // স্ক্র্যাপার থেকে প্রোডাক্টের নাম পেলে বসানো
+        if(data.name) {
+           document.getElementById('productName').value = data.name;
+        } else {
+           document.getElementById('productName').value = ""; // নাম না পেলে ফাঁকা রাখবে
+        }
+
+        // স্ক্র্যাপার থেকে সফলভাবে পাওয়া দাম ইনপুটে ২ ডেসিমেল ডটসহ সেট করা (যেমন: 1.00)
+        const parsedPrice = parseFloat(data.price);
+        document.getElementById('productPrice').value = parsedPrice.toFixed(2);
+        
+        // ওজনের নিরাপত্তা: যদি ওজন না পাওয়া যায় তবে ডিফল্ট ৫০০ গ্রাম ধরে নেবে
+        const finalWeight = (data.weight && parseFloat(data.weight) > 0) ? parseFloat(data.weight) : 500;
+        document.getElementById('productWeight').value = finalWeight;
+        
         document.getElementById('weightUnit').value = data.unit || "Grams";
         
         // পুনরায় মোট হিসাব ক্যালকুলেট করা
@@ -282,7 +304,7 @@
     const combinedServiceGBP = shippingCostGBP + marginCostGBP;
     const combinedServiceBDT = Math.round(combinedServiceGBP * exchangeRate);
 
-    // ६. সর্বমোট হিসাব (টাকায় রূপান্তর করে Round Off করা হয়েছে)
+    // ৬. সর্বমোট হিসাব (টাকায় রূপান্তর করে Round Off করা হয়েছে)
     const totalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
     const totalCostBDT = Math.round(totalCostGBP * exchangeRate);
 
