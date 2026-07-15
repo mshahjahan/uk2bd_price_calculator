@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK to BD Calculator</title>
+  <title>UK to BD E-commerce Calculator</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -15,7 +15,7 @@
     }
     .container {
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -40,6 +40,9 @@
       font-size: 16px;
       margin-bottom: 12px;
       color: #333;
+      border-bottom: 2px solid #008080;
+      padding-bottom: 4px;
+      display: inline-block;
     }
     .field-label {
       font-size: 14px;
@@ -55,9 +58,6 @@
       display: flex;
       gap: 8px;
       margin-bottom: 8px;
-    }
-    .input-group:last-child {
-      margin-bottom: 0;
     }
     input, select {
       flex: 1;
@@ -78,10 +78,40 @@
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #006666;
     }
     button:disabled {
-      background-color: #a0d2d2;
+      background-color: #ccc;
+      color: #666;
       cursor: not-allowed;
+    }
+    .btn-add-cart {
+      background-color: #ff9900;
+      color: white;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 12px;
+    }
+    .btn-add-cart:hover {
+      background-color: #e68a00;
+    }
+    .btn-payment {
+      background-color: #28a745;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      margin-top: 8px;
+      box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+    }
+    .btn-payment:hover {
+      background-color: #218838;
     }
     .product-preview {
       display: none;
@@ -95,18 +125,61 @@
       border: 1px dashed #ddd;
     }
     .product-preview img {
-      max-width: 150px;
-      max-height: 150px;
+      max-width: 120px;
+      max-height: 120px;
       object-fit: contain;
       border-radius: 6px;
       margin-bottom: 8px;
       background: white;
     }
-    .product-preview-title {
+    
+    /* Cart Styles */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    .cart-item-details {
+      flex: 1;
+    }
+    .cart-item-title {
       font-size: 14px;
       font-weight: bold;
       color: #333;
     }
+    .cart-item-meta {
+      font-size: 12px;
+      color: #666;
+    }
+    .btn-remove {
+      background-color: #ff4d4d;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .btn-remove:hover {
+      background-color: #cc0000;
+    }
+    .empty-cart {
+      text-align: center;
+      color: #999;
+      padding: 20px 0;
+      font-style: italic;
+    }
+
+    /* Summary Card */
     .total-card {
       background-color: #e6f2f2;
       border: 1px solid #b2d8d8;
@@ -129,7 +202,6 @@
     .total-gbp {
       font-size: 14px;
       color: #666;
-      font-style: italic;
     }
     .breakdown-row {
       display: flex;
@@ -141,12 +213,6 @@
     }
     .breakdown-row:last-child {
       border-bottom: none;
-    }
-    .breakdown-label {
-      color: #666;
-    }
-    .breakdown-values {
-      text-align: right;
     }
     .bold-text {
       font-weight: bold;
@@ -160,32 +226,134 @@
       background-color: #ddd;
       margin: 12px 0;
     }
-    .discount-error {
-      color: red;
+    .discount-error, .discount-warning {
       font-size: 11px;
       margin-top: 4px;
       display: none;
     }
+    .discount-error { color: red; }
     .discount-warning {
       color: #856404;
       background-color: #fff3cd;
       border: 1px solid #ffeeba;
       padding: 6px 10px;
       border-radius: 6px;
-      font-size: 11px;
-      margin-top: 4px;
+    }
+
+    /* Modal Popup Styles */
+    .modal {
       display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      font-size: 20px;
+      font-weight: bold;
+      color: #008080;
+      margin-bottom: 12px;
+    }
+    .bank-details-box {
+      background-color: #f8f9fa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: left;
+      margin-bottom: 16px;
+    }
+    .bank-row {
+      margin-bottom: 8px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .bank-row:last-child {
+      margin-bottom: 0;
+    }
+    .bank-label {
+      font-weight: 600;
+      color: #666;
+    }
+    .bank-value {
+      font-weight: bold;
+      color: #222;
+    }
+    .modal-amount {
+      font-size: 24px;
+      font-weight: bold;
+      color: #28a745;
+      margin: 12px 0;
+      background: #eaf7ed;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .upload-section {
+      border: 2px dashed #b2d8d8;
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .btn-whatsapp {
+      background-color: #25D366;
+      color: white;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 8px;
+      display: none; /* প্রুফ আপলোড হলে স্ক্রিপ্ট দিয়ে ভিজিবল করা হবে */
+    }
+    .btn-whatsapp:hover {
+      background-color: #1ebd59;
+    }
+    .btn-close-modal {
+      background-color: #6c757d;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+    }
+    .btn-close-modal:hover {
+      background-color: #5a6268;
+    }
+    #filePreview {
+      max-width: 100px;
+      max-height: 100px;
+      margin-top: 10px;
+      display: none;
+      border-radius: 4px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">UK-to-BD Calculator</div>
+  <div class="header">UK-to-BD E-commerce Platform</div>
 
-  <!-- ১. লিংক ইনপুট -->
+  <!-- ১. লিংক স্ক্র্যাপার -->
   <div class="card">
-    <div class="card-title">Product Link</div>
+    <div class="card-title">1. Fetch Product Via Link</div>
     <div class="input-group">
       <input type="text" id="productLink" placeholder="এখানে প্রোডাক্টের লিংক দিন...">
       <button id="fetchBtn" onclick="simulateFetch()">Fetch</button>
@@ -194,33 +362,51 @@
 
   <!-- ২. প্রোডাক্ট ডিটেইলস -->
   <div class="card">
+    <div class="card-title">2. Product Details</div>
     
     <div class="product-preview" id="productPreview">
       <img id="previewImg" src="" alt="Product Image">
-      <div class="product-preview-title" id="previewTitle">Product Preview</div>
     </div>
 
     <div class="field-label">Product Name</div>
     <div class="input-group">
-      <input type="text" id="productName" placeholder="প্রোডাক্টের নাম (ঐচ্ছিক)">
+      <input type="text" id="productName" placeholder="প্রোডাক্টের নাম লিখুন বা ফেচ করুন">
     </div>
 
-    <div class="field-label">Price</div>
+    <div class="field-label">Price per Unit</div>
     <div class="input-group">
-      <input type="number" id="productPrice" value="20.00" step="0.01" oninput="handlePriceChange()">
+      <input type="number" id="productPrice" value="20.00" step="0.01">
       <span style="align-self: center; font-weight: bold; margin-left: 5px;">£ GBP</span>
     </div>
 
-    <div class="field-label">Weight</div>
+    <div class="field-label">Weight per Unit</div>
     <div class="input-group">
-      <input type="number" id="productWeight" value="1500" oninput="calculate()">
-      <select id="weightUnit" onchange="calculate()">
+      <input type="number" id="productWeight" value="500">
+      <select id="weightUnit">
         <option value="Grams">Grams</option>
         <option value="KG">KG</option>
       </select>
     </div>
 
-    <!-- ফিক্সড ডিসকাউন্ট ফিল্ড (শর্তাধীন এবং সর্বোচ্চ ১০০ টাকা) -->
+    <div class="field-label">Quantity</div>
+    <div class="input-group">
+      <input type="number" id="productQty" value="1" min="1">
+    </div>
+
+    <button class="btn-add-cart" onclick="addToCart()">Add to Cart 🛒</button>
+  </div>
+
+  <!-- ৩. শপিং কার্ট -->
+  <div class="card">
+    <div class="card-title">3. Shopping Cart 🛒</div>
+    <div id="cartContainer">
+      <div class="empty-cart">আপনার কার্টটি বর্তমানে খালি আছে।</div>
+    </div>
+  </div>
+
+  <!-- ৪. ডিসকাউন্ট কনট্রোল -->
+  <div class="card">
+    <div class="card-title">4. Cart Discount Settings</div>
     <div class="field-label">Fixed Discount (Max 100 BDT)</div>
     <div class="input-group" style="flex-direction: column; align-items: stretch; gap: 0;">
       <div style="display: flex; gap: 8px; width: 100%;">
@@ -228,24 +414,26 @@
         <span style="align-self: center; font-weight: bold; margin-left: 5px;">৳ BDT</span>
       </div>
       <div class="discount-error" id="discountError">সর্বোচ্চ ১০০ টাকা ডিসকাউন্ট প্রযোজ্য!</div>
-      <div class="discount-warning" id="discountWarning">প্রোডাক্টের দাম £১০.০০-এর বেশি হলে ডিসকাউন্ট দেওয়া যাবে।</div>
+      <div class="discount-warning" id="discountWarning">কার্টের টোটাল প্রোডাক্ট প্রাইস £১০.০০-এর বেশি হলে ডিসকাউন্ট সক্রিয় হবে।</div>
     </div>
-
   </div>
 
-  <!-- ৩. মেইন রেজাল্ট কার্ড -->
-  <div class="total-card">
-    <div class="total-title">TOTAL COST (BDT)</div>
-    <div class="total-bdt" id="totalBDT">৳ 0</div>
-    <div class="total-gbp" id="totalGBP">Equivalent to £ 0.00</div>
+  <!-- ৫. গ্র্যান্ড টোটাল কার্ড এবং পেমেন্ট বাটন -->
+  <div>
+    <div class="total-card">
+      <div class="total-title">GRAND TOTAL PAYABLE (BDT)</div>
+      <div class="total-bdt" id="totalBDT">৳ 0</div>
+      <div class="total-gbp" id="totalGBP">Equivalent to £ 0.00</div>
+    </div>
+    <button class="btn-payment" id="paymentBtn" onclick="openPaymentModal()" disabled>Make Bank Payment 🏦</button>
   </div>
 
-  <!-- ৪. বিবরণী ব্রেকডাউন -->
+  <!-- ৬. একত্রিত বিবরণী ব্রেকডাউন -->
   <div class="card">
-    <div class="card-title">Cost Breakdown (বিস্তারিত বিবরণ)</div>
+    <div class="card-title">Combined Summary (বিস্তারিত বিবরণী)</div>
     
     <div class="breakdown-row">
-      <span class="breakdown-label">Product Base Price</span>
+      <span class="breakdown-label">Combined Base Price (All Items)</span>
       <div class="breakdown-values">
         <div class="bold-text" id="baseBDT">৳ 0</div>
         <div style="font-size: 12px; color: #999;" id="baseGBP">£ 0.00</div>
@@ -253,19 +441,18 @@
     </div>
 
     <div class="breakdown-row">
-      <span class="breakdown-label">Product Weight</span>
-      <div class="bold-text" id="displayWeight">1500 Grams</div>
+      <span class="breakdown-label">Combined Total Weight</span>
+      <div class="bold-text" id="displayWeight">0 KG</div>
     </div>
 
     <div class="breakdown-row">
-      <span class="breakdown-label">Shipping & Service Charge</span>
+      <span class="breakdown-label">Total Shipping & Service Charge</span>
       <div class="breakdown-values">
         <div class="bold-text" id="serviceBDT">৳ 0</div>
         <div style="font-size: 12px; color: #999;" id="serviceGBP">£ 0.00</div>
       </div>
     </div>
 
-    <!-- ডিসকাউন্ট ব্রেকডাউন রো -->
     <div class="breakdown-row" id="discountRow" style="display: none;">
       <span class="breakdown-label discount-text">Fixed Discount Applied</span>
       <div class="breakdown-values">
@@ -277,54 +464,54 @@
     <div class="divider"></div>
 
     <div class="breakdown-row" style="font-size: 16px; font-weight: bold;">
-      <span>Total Payable</span>
+      <span>Final Summary Total</span>
       <span style="color: #008080;" id="finalTotalCombined">£ 0.00 / ৳ 0</span>
     </div>
   </div>
 </div>
 
+<!-- ব্যাংক পেমেন্ট পপআপ মোডাল (Modal) -->
+<div class="modal" id="paymentModal">
+  <div class="modal-content">
+    <div class="modal-header">Bank Payment Details</div>
+    <p style="font-size: 13px; color: #555; margin-bottom: 12px;">নিচের ব্যাংক অ্যাকাউন্টে সমপরিমাণ টাকা পরিশোধ করে প্রুফ আপলোড করুন।</p>
+    
+    <div class="bank-details-box">
+      <div class="bank-row"><span class="bank-label">Bank Name:</span><span class="bank-value">Standard Chartered Bank</span></div>
+      <div class="bank-row"><span class="bank-label">Branch:</span><span class="bank-value">Gulshan Branch</span></div>
+      <div class="bank-row"><span class="bank-label">Account Name:</span><span class="bank-value">MD SHAHJAHAN</span></div>
+      <div class="bank-row"><span class="bank-label">Account Number:</span><span class="bank-value">18 1135926 01</span></div>
+    </div>
+
+    <div class="modal-title" style="font-size: 11px; color: #666; font-weight: bold;">TOTAL PAYABLE AMOUNT</div>
+    <div class="modal-amount" id="modalAmountBDT">৳ 0</div>
+
+    <!-- পেমেন্ট প্রুফ আপলোড ফিল্ড -->
+    <div class="upload-section">
+      <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #333;">Upload Payment Proof (Receipt/Screenshot)</div>
+      <input type="file" id="paymentProofInput" accept="image/*" onchange="handleProofUpload()">
+      <center><img id="filePreview" src="" alt="Proof Preview"></center>
+    </div>
+
+    <!-- হোয়াটসঅ্যাপ নোটিফিকেশন বোতাম -->
+    <button class="btn-whatsapp" id="whatsAppBtn" onclick="sendWhatsAppNotification()">Send Proof to WhatsApp 💬</button>
+    <button class="btn-close-modal" onclick="closePaymentModal()">Close & Back</button>
+  </div>
+</div>
+
 <script>
+  // ⚠️ এখানে আপনার হোয়াটসঅ্যাপ নাম্বার দিন (কান্ট্রি কোড সহ, কোনো '+' বা স্পেস ছাড়া)
+  const myWhatsAppNumber = "8801XXXXXXXXX"; 
+
   const exchangeRate = 170.0; 
   const shippingRate = 7.0;   
   const marginPercent = 30.0; 
   const bufferPercent = 30.0; 
 
-  // দাম ১০ পাউন্ডের কম-বেশি হলে ডিসকাউন্ট ফিল্ড হ্যান্ডেল করার লজিক
-  function handlePriceChange() {
-    const priceGBP = parseFloat(document.getElementById('productPrice').value) || 0;
-    const discountInput = document.getElementById('fixedDiscount');
-    const warningMsg = document.getElementById('discountWarning');
-
-    if (priceGBP <= 10.00) {
-      discountInput.value = 0;
-      discountInput.disabled = true;
-      warningMsg.style.display = 'block';
-    } else {
-      discountInput.disabled = false;
-      warningMsg.style.display = 'none';
-    }
-    calculate();
-  }
-
-  // ডিসকাউন্ট ভ্যালিডেশন ফাংশন (১০০ টাকার সীমা এনফোর্স করে)
-  function validateDiscount() {
-    const discountInput = document.getElementById('fixedDiscount');
-    const errorMsg = document.getElementById('discountError');
-    let value = parseFloat(discountInput.value) || 0;
-
-    if (value < 0) {
-      discountInput.value = 0;
-    } else if (value > 100) {
-      discountInput.value = 100;
-      errorMsg.style.display = 'block';
-      setTimeout(() => {
-        errorMsg.style.display = 'none';
-      }, 2000);
-    } else {
-      errorMsg.style.display = 'none';
-    }
-    calculate();
-  }
+  let cart = [];
+  let fetchedImgUrl = "";
+  let globalFinalTotalBDT = 0;
+  let globalTotalWeightKG = 0;
 
   async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value;
@@ -337,120 +524,177 @@
     fetchButton.innerText = "Fetching...";
     fetchButton.disabled = true;
     document.getElementById('productPreview').style.display = "none";
+    fetchedImgUrl = "";
 
     try {
       const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
-      
       const response = await fetch(apiURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: linkInput })
       });
 
-      if (!response.ok) {
-        throw new Error("HTTP error " + response.status);
-      }
-
+      if (!response.ok) throw new Error("HTTP error " + response.status);
       const data = await response.json();
 
       if (data.error || data.price === undefined || data.price === null) {
-        alert("লিংক থেকে সঠিক দাম বা ওজন খুঁজে পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি সঠিক মান বসিয়ে নিন।");
+        alert("লিংক থেকে সঠিক ডাটা পাওয়া যায়নি। ম্যানুয়ালি তথ্য দিন।");
       } else {
-        if(data.name) {
-           document.getElementById('productName').value = data.name;
-        } else {
-           document.getElementById('productName').value = "";
-        }
-
-        const parsedPrice = parseFloat(data.price);
-        document.getElementById('productPrice').value = parsedPrice.toFixed(2);
-        
-        const finalWeight = (data.weight && parseFloat(data.weight) > 0) ? parseFloat(data.weight) : 500;
-        document.getElementById('productWeight').value = finalWeight;
+        document.getElementById('productName').value = data.name || "Scraped Product";
+        document.getElementById('productPrice').value = parseFloat(data.price).toFixed(2);
+        document.getElementById('productWeight').value = (data.weight && parseFloat(data.weight) > 0) ? parseFloat(data.weight) : 500;
         document.getElementById('weightUnit').value = data.unit || "Grams";
+        document.getElementById('productQty').value = 1;
 
         if (data.image) {
+          fetchedImgUrl = data.image;
           document.getElementById('previewImg').src = data.image;
-          document.getElementById('previewTitle').innerText = data.name || "Product Preview";
           document.getElementById('productPreview').style.display = "flex"; 
         }
-        
-        // দাম পরিবর্তনের ফাংশনটি কল করা যাতে ডিসকাউন্ট ফিল্ড লক/আনলক হয়
-        handlePriceChange();
-        alert('সফলভাবে লাইভ দাম, ছবি এবং ওজন আপডেট করা হয়েছে!');
+        alert('সফলভাবে প্রোডাক্ট ডাটা লোড হয়েছে!');
       }
     } catch (error) {
       console.error(error);
-      alert("দুঃখিত, এই ওয়েবসাইটের সিকিউরিটি ব্লকের কারণে তথ্য স্বয়ংক্রিয়ভাবে আনা যায়নি। দয়া করে নিচে দাম ও ওজন ম্যানুয়ালি লিখে দিন।");
+      alert("তথ্য স্বয়ংক্রিয়ভাবে আনা যায়নি। দয়া করে নিচে দাম ও ওজন ম্যানুয়ালি লিখে দিন।");
     } finally {
       fetchButton.innerText = "Fetch";
       fetchButton.disabled = false;
     }
   }
 
-  function calculate() {
-    const priceGBP = parseFloat(document.getElementById('productPrice').value) || 0;
-    const weightInput = parseFloat(document.getElementById('productWeight').value) || 0;
+  function addToCart() {
+    let name = document.getElementById('productName').value.trim();
+    const price = parseFloat(document.getElementById('productPrice').value) || 0;
+    const weight = parseFloat(document.getElementById('productWeight').value) || 0;
     const unit = document.getElementById('weightUnit').value;
+    const qty = parseInt(document.getElementById('productQty').value) || 1;
+
+    if(!name) name = "Custom Product Line Item #" + (cart.length + 1);
+    if(price <= 0 || weight <= 0 || qty <= 0) {
+      alert("অনুগ্রহ করে সঠিক দাম, ওজন এবং পরিমাণ সেট করুন।");
+      return;
+    }
+
+    cart.push({
+      id: Date.now(),
+      name: name,
+      price: price,
+      weight: weight,
+      unit: unit,
+      qty: qty,
+      image: fetchedImgUrl || "https://via.placeholder.com/50?text=No+Img"
+    });
     
-    // দাম ১০ পাউন্ডের কম হলে ডিসকাউন্ট সরাসরি ০ করে দেওয়া
+    document.getElementById('productName').value = "";
+    document.getElementById('productLink').value = "";
+    document.getElementById('productQty').value = 1;
+    document.getElementById('productPreview').style.display = "none";
+    fetchedImgUrl = "";
+
+    renderCart();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    renderCart();
+  }
+
+  function validateDiscount() {
+    const discountInput = document.getElementById('fixedDiscount');
+    const errorMsg = document.getElementById('discountError');
+    let value = parseFloat(discountInput.value) || 0;
+
+    if (value < 0) discountInput.value = 0;
+    if (value > 100) {
+      discountInput.value = 100;
+      errorMsg.style.display = 'block';
+      setTimeout(() => { errorMsg.style.display = 'none'; }, 2000);
+    }
+    calculateSummary();
+  }
+
+  function renderCart() {
+    const container = document.getElementById('cartContainer');
+    const paymentBtn = document.getElementById('paymentBtn');
+
+    if (cart.length === 0) {
+      container.innerHTML = '<div class="empty-cart">আপনার কার্টটি বর্তমানে খালি আছে।</div>';
+      paymentBtn.disabled = true;
+      calculateSummary();
+      return;
+    }
+
+    paymentBtn.disabled = false;
+    let html = "";
+    cart.forEach(item => {
+      html += `
+        <div class="cart-item">
+          <img src="${item.image}" alt="img">
+          <div class="cart-item-details">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-meta">
+              Price: £${item.price.toFixed(2)} | Weight: ${item.weight} ${item.unit} | <b>Qty: ${item.qty}</b>
+            </div>
+          </div>
+          <button class="btn-remove" onclick="removeFromCart(${item.id})">Remove</button>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+    calculateSummary();
+  }
+
+  function calculateSummary() {
+    globalTotalWeightKG = 0;
+    let totalCombinedPriceGBP = 0;
+
+    cart.forEach(item => {
+      let itemWeightKG = (item.unit === 'Grams') ? (item.weight / 1000) : item.weight;
+      globalTotalWeightKG += (itemWeightKG * item.qty);
+      totalCombinedPriceGBP += (item.price * item.qty);
+    });
+
+    const discountInput = document.getElementById('fixedDiscount');
+    const warningMsg = document.getElementById('discountWarning');
     let fixedDiscountBDT = 0;
-    if (priceGBP > 10.00) {
-      fixedDiscountBDT = parseFloat(document.getElementById('fixedDiscount').value) || 0;
+
+    if (totalCombinedPriceGBP <= 10.00) {
+      discountInput.value = 0;
+      discountInput.disabled = true;
+      warningMsg.style.display = cart.length > 0 ? 'block' : 'none';
     } else {
-      document.getElementById('fixedDiscount').value = 0;
+      discountInput.disabled = false;
+      warningMsg.style.display = 'none';
+      fixedDiscountBDT = parseFloat(discountInput.value) || 0;
     }
 
-    if (fixedDiscountBDT < 0) fixedDiscountBDT = 0;
-    if (fixedDiscountBDT > 100) fixedDiscountBDT = 100;
+    const totalBufferedWeightKG = globalTotalWeightKG + (globalTotalWeightKG * (bufferPercent / 100));
+    const totalShippingCostGBP = totalBufferedWeightKG * shippingRate;
+    const totalMarginCostGBP = totalCombinedPriceGBP * (marginPercent / 100);
 
-    // ১. কেজি কনভার্সন
-    let baseWeightKG = 0;
-    if (unit === 'Grams') {
-      baseWeightKG = weightInput / 1000;
-    } else {
-      baseWeightKG = weightInput;
-    }
+    const combinedServiceGBP = totalShippingCostGBP + totalMarginCostGBP;
+    const combinedServiceBDT = Math.round(combinedServiceGBP * exchangeRate);
 
-    // ২. বাফার ওজন সহ টোটাল ওজন
-    const totalWeightKG = baseWeightKG + (baseWeightKG * (bufferPercent / 100));
+    const rawGrandTotalGBP = totalCombinedPriceGBP + totalShippingCostGBP + totalMarginCostGBP;
+    const rawGrandTotalBDT = Math.round(rawGrandTotalGBP * exchangeRate);
 
-    // ৩. শিপিং খরচ
-    const shippingCostGBP = totalWeightKG * shippingRate;
-
-    // ৪. মূল প্রফিট মার্জিন
-    const marginCostGBP = priceGBP * (marginPercent / 100);
-
-    // ৫. সার্ভিস চার্জ
-    const serviceGBP = shippingCostGBP + marginCostGBP;
-    const serviceBDT = Math.round(serviceGBP * exchangeRate);
-
-    // ৬. ডিসকাউন্টের আগের মোট দাম
-    const rawTotalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
-    const rawTotalCostBDT = Math.round(rawTotalCostGBP * exchangeRate);
-
-    // ৭. চূড়ান্ত টোটাল পেএবল
-    const finalTotalBDT = Math.max(0, rawTotalCostBDT - fixedDiscountBDT);
-    const finalTotalGBP = finalTotalBDT / exchangeRate;
+    globalFinalTotalBDT = Math.max(0, rawGrandTotalBDT - fixedDiscountBDT);
+    const finalGrandTotalGBP = globalFinalTotalBDT / exchangeRate;
 
     const discountGBP = fixedDiscountBDT / exchangeRate;
-    const baseBDT = Math.round(priceGBP * exchangeRate);
+    const baseBDT = Math.round(totalCombinedPriceGBP * exchangeRate);
 
-    // ইন্টারফেস আপডেট
-    document.getElementById('totalBDT').innerText = '৳ ' + finalTotalBDT;
-    document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + finalTotalGBP.toFixed(2);
+    document.getElementById('totalBDT').innerText = '৳ ' + globalFinalTotalBDT;
+    document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + finalGrandTotalGBP.toFixed(2);
     
     document.getElementById('baseBDT').innerText = '৳ ' + baseBDT;
-    document.getElementById('baseGBP').innerText = '£ ' + priceGBP.toFixed(2);
+    document.getElementById('baseGBP').innerText = '£ ' + totalCombinedPriceGBP.toFixed(2);
+    document.getElementById('displayWeight').innerText = globalTotalWeightKG.toFixed(3) + ' KG';
+    document.getElementById('serviceBDT').innerText = '৳ ' + combinedServiceBDT;
+    document.getElementById('serviceGBP').innerText = '£ ' + combinedServiceGBP.toFixed(2);
 
-    document.getElementById('displayWeight').innerText = weightInput + ' ' + unit;
-
-    document.getElementById('serviceBDT').innerText = '৳ ' + serviceBDT;
-    document.getElementById('serviceGBP').innerText = '£ ' + serviceGBP.toFixed(2);
-
-    // ডিসকাউন্ট রো ভিজিবিলিটি হ্যান্ডলিং
     const discountRow = document.getElementById('discountRow');
-    if (fixedDiscountBDT > 0) {
+    if (fixedDiscountBDT > 0 && totalCombinedPriceGBP > 10.00) {
       discountRow.style.display = 'flex';
       document.getElementById('discountBDT').innerText = '-৳ ' + fixedDiscountBDT;
       document.getElementById('discountGBP').innerText = '-£ ' + discountGBP.toFixed(2);
@@ -458,11 +702,76 @@
       discountRow.style.display = 'none';
     }
 
-    document.getElementById('finalTotalCombined').innerText = '£' + finalTotalGBP.toFixed(2) + ' / ৳' + finalTotalBDT;
+    document.getElementById('finalTotalCombined').innerText = '£' + finalGrandTotalGBP.toFixed(2) + ' / ৳' + globalFinalTotalBDT;
   }
 
-  // ফার্স্ট টাইম রান
-  handlePriceChange();
+  // মোডাল পপআপ ও প্রুফ আপলোড হ্যান্ডলিং
+  function openPaymentModal() {
+    document.getElementById('modalAmountBDT').innerText = '৳ ' + globalFinalTotalBDT;
+    document.getElementById('paymentModal').style.display = 'flex';
+    // মোডাল খোলার সময় রিসেট করা হচ্ছে
+    document.getElementById('paymentProofInput').value = "";
+    document.getElementById('filePreview').style.display = "none";
+    document.getElementById('whatsAppBtn').style.display = "none";
+  }
+
+  function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+  }
+
+  function handleProofUpload() {
+    const fileInput = document.getElementById('paymentProofInput');
+    const preview = document.getElementById('filePreview');
+    const whatsAppBtn = document.getElementById('whatsAppBtn');
+
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      }
+      reader.readAsDataURL(fileInput.files[0]);
+      
+      // ফাইল সফলভাবে সিলেক্ট হলে WhatsApp বোতামটি চালু হবে
+      whatsAppBtn.style.display = "block";
+      alert("পেমেন্ট স্লিপ সংযুক্ত হয়েছে! নোটিফিকেশন পাঠাতে নিচের সবুজ বাটনে ক্লিক করুন।");
+    }
+  }
+
+  // হোয়াটসঅ্যাপ নোটিফিকেশন ট্রিগার মেসেজ বিল্ডিং
+  function sendWhatsAppNotification() {
+    if(myWhatsAppNumber === "8801XXXXXXXXX") {
+      alert("ডেভেলপার কনফিগুরেশন অ্যালার্ট: অনুগ্রহ করে কোডের স্ক্রিপ্ট অংশের শুরুতে আপনার নিজস্ব হোয়াটসঅ্যাপ নাম্বারটি ইনপুট করুন।");
+      return;
+    }
+
+    // কার্ট আইটেমগুলোর সামারি তৈরি
+    let itemDetails = "";
+    cart.forEach((item, index) => {
+      itemDetails += `${index + 1}. ${item.name} (Qty: ${item.qty})\n`;
+    });
+
+    // মেসেজ ফরম্যাটিং
+    const message = `🔔 *New Order Bank Payment Notification* 🔔\n\n` +
+                    `Hello, I have made the bank payment for my order. Here are the details:\n\n` +
+                    `📦 *Ordered Items*:\n${itemDetails}\n` +
+                    `⚖️ *Total Weight*: ${globalTotalWeightKG.toFixed(3)} KG\n` +
+                    `💰 *Total Amount Paid*: ${globalFinalTotalBDT} BDT\n\n` +
+                    `🏦 *Paid To*:\n` +
+                    `Bank: Standard Chartered Bank\n` +
+                    `Account Name: MD SHAHJAHAN\n` +
+                    `Account: 18 1135926 01\n\n` +
+                    `📎 _Note: I have attached the proof/screenshot of the receipt in the application._`;
+
+    // ইউআরএল এনকোডিং
+    const encodedMessage = encodeURIComponent(message);
+    const whatsAppURL = `https://wa.me/${myWhatsAppNumber}?text=${encodedMessage}`;
+
+    // নতুন ট্যাবে হোয়াটসঅ্যাপ ডাইরেক্ট চ্যাট ওপেন হবে
+    window.open(whatsAppURL, '_blank');
+  }
+
+  calculateSummary();
 </script>
 
 </body>
