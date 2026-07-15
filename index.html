@@ -65,6 +65,10 @@
       font-weight: bold;
       cursor: pointer;
     }
+    button:disabled {
+      background-color: #a0d2d2;
+      cursor: not-allowed;
+    }
     .total-card {
       background-color: #e6f2f2;
       border: 1px solid #b2d8d8;
@@ -126,7 +130,7 @@
     <div class="card-title">Product Link</div>
     <div class="input-group">
       <input type="text" id="productLink" placeholder="এখানে প্রোডাক্টের লিংক দিন...">
-      <button onclick="simulateFetch()">Fetch</button>
+      <button id="fetchBtn" onclick="simulateFetch()">Fetch</button>
     </div>
   </div>
 
@@ -193,20 +197,49 @@
   const marginPercent = 30.0; // আপনার মার্জিন ৩০%
   const bufferPercent = 30.0; // বাফার ওজন ৩০%
 
-  function simulateFetch() {
+  // লাইভ Python API স্ক্র্যাপার কানেকশন ফাংশন
+  async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value;
     if (!linkInput) {
       alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
       return;
     }
     
-    alert('লিংক থেকে সফলভাবে প্রোডাক্টের তথ্য আনা হচ্ছে...');
-    setTimeout(() => {
-      document.getElementById('productPrice').value = "35.00";
-      document.getElementById('productWeight').value = "1200";
-      document.getElementById('weightUnit').value = "Grams";
-      calculate();
-    }, 1000);
+    const fetchButton = document.getElementById('fetchBtn');
+    fetchButton.innerText = "Fetching...";
+    fetchButton.disabled = true;
+
+    try {
+      // আপনার রেন্ডার সার্ভার এপিআই এর ডোমেইন লিংক সেট করা হলো
+      const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
+      
+      const response = await fetch(apiURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: linkInput })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert("লিংক থেকে স্বয়ংক্রিয়ভাবে ডাটা পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি দাম ও ওজন লিখে দিন।");
+      } else {
+        // স্ক্র্যাপার থেকে পাওয়া দাম ও ওজন ইনপুট বক্সে সেট করা
+        document.getElementById('productPrice').value = data.price;
+        document.getElementById('productWeight').value = data.weight;
+        document.getElementById('weightUnit').value = data.unit;
+        
+        // পুনরায় মোট হিসাব ক্যালকুলেট করা
+        calculate();
+        alert('সফলভাবে দাম এবং ওজন আপডেট করা হয়েছে!');
+      }
+    } catch (error) {
+      console.error(error);
+      alert("সার্ভার কানেকশন এরর বা টাইমআউট হয়েছে! অনুগ্রহ করে ম্যানুয়ালি ইনপুট দিন।");
+    } finally {
+      fetchButton.innerText = "Fetch";
+      fetchButton.disabled = false;
+    }
   }
 
   function calculate() {
@@ -256,7 +289,7 @@
     document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT;
   }
 
-  // প্রথমবার পেজ লোড হবার সময় হিসাব রান করার জন্য
+  // প্রথমবার পেজ লোড হবার সময় প্রাথমিক হিসাব দেখানোর জন্য
   calculate();
 </script>
 
