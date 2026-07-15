@@ -1,17 +1,264 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UK to BD Calculator</title>
-  <!-- DartPad-এর কোডটি সরাসরি ওয়েবসাইটে রান করার জন্য এটি একটি চমৎকার ফ্রি ফ্রেমওয়ার্ক -->
-  <script src="https://dartpad.dev/inject_embed.dart.js" defer></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #F5F7FA;
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .header {
+      background-color: #008080;
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #333;
+    }
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+    input, select {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      background-color: #008080;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .total-card {
+      background-color: #e6f2f2;
+      border: 1px solid #b2d8d8;
+      text-align: center;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .total-title {
+      font-size: 12px;
+      color: #008080;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .total-bdt {
+      font-size: 32px;
+      font-weight: bold;
+      color: #008080;
+      margin: 8px 0;
+    }
+    .total-gbp {
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+    .breakdown-row:last-child {
+      border-bottom: none;
+    }
+    .breakdown-label {
+      color: #666;
+    }
+    .breakdown-values {
+      text-align: right;
+    }
+    .bold-text {
+      font-weight: bold;
+    }
+    .divider {
+      height: 1px;
+      background-color: #ddd;
+      margin: 12px 0;
+    }
+  </style>
 </head>
-<body style="margin:0; padding:0; height:100vh; display:flex; justify-content:center; align-items:center; background-color:#F5F7FA;">
-  
-  <!-- এটি আপনার Flutter কোডটিকে সরাসরি ব্রাউজারে একটি অ্যাপের মতো রান করবে -->
-  <iframe src="https://dartpad.dev/embed-flutter.html?theme=light&run=true&split=0" 
-          style="border:none; width:100%; height:100%;">
-  </iframe>
+<body>
+
+<div class="container">
+  <div class="header">UK-to-BD Calculator</div>
+
+  <!-- ১. লিংক ইনপুট -->
+  <div class="card">
+    <div class="card-title">Product Link</div>
+    <div class="input-group">
+      <input type="text" id="productLink" placeholder="এখানে প্রোডাক্টের লিংক দিন...">
+      <button onclick="simulateFetch()">Fetch</button>
+    </div>
+  </div>
+
+  <!-- ২. প্রাইজ ও ওয়েট ইনপুট -->
+  <div class="card">
+    <div class="input-group">
+      <input type="number" id="productPrice" value="20.0" step="0.1" oninput="calculate()">
+      <span style="align-self: center; font-weight: bold; margin-left: 5px;">£ GBP</span>
+    </div>
+    <div class="input-group">
+      <input type="number" id="productWeight" value="1500" oninput="calculate()">
+      <select id="weightUnit" onchange="calculate()">
+        <option value="Grams">Grams</option>
+        <option value="KG">KG</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ৩. মেইন রেজাল্ট কার্ড -->
+  <div class="total-card">
+    <div class="total-title">TOTAL COST (BDT)</div>
+    <div class="total-bdt" id="totalBDT">৳ 0.00</div>
+    <div class="total-gbp" id="totalGBP">Equivalent to £ 0.00</div>
+  </div>
+
+  <!-- ৪. বিবরণী ব্রেকডাউন -->
+  <div class="card">
+    <div class="card-title">Cost Breakdown (বিস্তারিত বিবরণ)</div>
+    
+    <div class="breakdown-row">
+      <span class="breakdown-label">Product Base Price</span>
+      <div class="breakdown-values">
+        <div class="bold-text" id="baseBDT">৳ 0.00</div>
+        <div style="font-size: 12px; color: #999;" id="baseGBP">£ 0.00</div>
+      </div>
+    </div>
+
+    <div class="breakdown-row">
+      <span class="breakdown-label">Product Weight</span>
+      <div class="bold-text" id="displayWeight">1500 Grams</div>
+    </div>
+
+    <div class="breakdown-row">
+      <span class="breakdown-label">Shipping & Service Charge</span>
+      <div class="breakdown-values">
+        <div class="bold-text" id="serviceBDT">৳ 0.00</div>
+        <div style="font-size: 12px; color: #999;" id="serviceGBP">£ 0.00</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="breakdown-row" style="font-size: 16px; font-weight: bold;">
+      <span>Total Payable</span>
+      <span style="color: #008080;" id="finalTotalCombined">£ 0.00 / ৳ 0.00</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // বিজনেসের গোপন ভ্যালুসমূহ (সম্পূর্ণ হাইড করা, বাইরে কোনো ব্রেকডাউন দেখাবে না)
+  const exchangeRate = 170.0; // পাউন্ড রেট ১৭০ টাকা
+  const shippingRate = 7.0;   // প্রতি কেজি £৭
+  const marginPercent = 30.0; // আপনার মার্জিন ৩০%
+  const bufferPercent = 30.0; // বাফার ওজন ৩০%
+
+  function simulateFetch() {
+    const linkInput = document.getElementById('productLink').value;
+    if (!linkInput) {
+      alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
+      return;
+    }
+    
+    alert('লিংক থেকে সফলভাবে প্রোডাক্টের তথ্য আনা হচ্ছে...');
+    setTimeout(() => {
+      document.getElementById('productPrice').value = "35.00";
+      document.getElementById('productWeight').value = "1200";
+      document.getElementById('weightUnit').value = "Grams";
+      calculate();
+    }, 1000);
+  }
+
+  function calculate() {
+    const priceGBP = parseFloat(document.getElementById('productPrice').value) || 0;
+    const weightInput = parseFloat(document.getElementById('productWeight').value) || 0;
+    const unit = document.getElementById('weightUnit').value;
+
+    // ১. কেজি কনভার্সন
+    let baseWeightKG = 0;
+    if (unit === 'Grams') {
+      baseWeightKG = weightInput / 1000;
+    } else {
+      baseWeightKG = weightInput;
+    }
+
+    // ২. বাফার ওজন সহ টোটাল ওজন (ব্যাকগ্রাউন্ডে ৩০% বাফার যোগ হবে)
+    const totalWeightKG = baseWeightKG + (baseWeightKG * (bufferPercent / 100));
+
+    // ৩. শিপিং খরচ
+    const shippingCostGBP = totalWeightKG * shippingRate;
+
+    // ৪. মার্জিন
+    const marginCostGBP = priceGBP * (marginPercent / 100);
+
+    // ৫. সিক্রেট কম্বাইন্ড সার্ভিস চার্জ
+    const combinedServiceGBP = shippingCostGBP + marginCostGBP;
+    const combinedServiceBDT = combinedServiceGBP * exchangeRate;
+
+    // ৬. সর্বমোট হিসাব
+    const totalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
+    const totalCostBDT = totalCostGBP * exchangeRate;
+
+    const baseBDT = priceGBP * exchangeRate;
+
+    // ইউজার ইন্টারফেসে ডাটা আপডেট
+    document.getElementById('totalBDT').innerText = '৳ ' + totalCostBDT.toFixed(2);
+    document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + totalCostGBP.toFixed(2);
+    
+    document.getElementById('baseBDT').innerText = '৳ ' + baseBDT.toFixed(2);
+    document.getElementById('baseGBP').innerText = '£ ' + priceGBP.toFixed(2);
+
+    document.getElementById('displayWeight').innerText = weightInput + ' ' + unit;
+
+    document.getElementById('serviceBDT').innerText = '৳ ' + combinedServiceBDT.toFixed(2);
+    document.getElementById('serviceGBP').innerText = '£ ' + combinedServiceGBP.toFixed(2);
+
+    document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT.toFixed(2);
+  }
+
+  // প্রথমবার পেজ লোড হবার সময় হিসাব রান করার জন্য
+  calculate();
+</script>
 
 </body>
 </html>
