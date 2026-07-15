@@ -66,6 +66,10 @@
       border-radius: 6px;
       font-size: 14px;
     }
+    input:disabled {
+      background-color: #f2f2f2;
+      cursor: not-allowed;
+    }
     button {
       background-color: #008080;
       color: white;
@@ -162,6 +166,16 @@
       margin-top: 4px;
       display: none;
     }
+    .discount-warning {
+      color: #856404;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -193,7 +207,7 @@
 
     <div class="field-label">Price</div>
     <div class="input-group">
-      <input type="number" id="productPrice" value="20.00" step="0.01" oninput="calculate()">
+      <input type="number" id="productPrice" value="20.00" step="0.01" oninput="handlePriceChange()">
       <span style="align-self: center; font-weight: bold; margin-left: 5px;">£ GBP</span>
     </div>
 
@@ -206,7 +220,7 @@
       </select>
     </div>
 
-    <!-- ফিক্সড ডিসকাউন্ট ফিল্ড (সর্বোচ্চ ১০০ টাকা) -->
+    <!-- ফিক্সড ডিসকাউন্ট ফিল্ড (শর্তাধীন এবং সর্বোচ্চ ১০০ টাকা) -->
     <div class="field-label">Fixed Discount (Max 100 BDT)</div>
     <div class="input-group" style="flex-direction: column; align-items: stretch; gap: 0;">
       <div style="display: flex; gap: 8px; width: 100%;">
@@ -214,6 +228,7 @@
         <span style="align-self: center; font-weight: bold; margin-left: 5px;">৳ BDT</span>
       </div>
       <div class="discount-error" id="discountError">সর্বোচ্চ ১০০ টাকা ডিসকাউন্ট প্রযোজ্য!</div>
+      <div class="discount-warning" id="discountWarning">প্রোডাক্টের দাম £১০.০০-এর বেশি হলে ডিসকাউন্ট দেওয়া যাবে।</div>
     </div>
 
   </div>
@@ -274,6 +289,23 @@
   const marginPercent = 30.0; 
   const bufferPercent = 30.0; 
 
+  // দাম ১০ পাউন্ডের কম-বেশি হলে ডিসকাউন্ট ফিল্ড হ্যান্ডেল করার লজিক
+  function handlePriceChange() {
+    const priceGBP = parseFloat(document.getElementById('productPrice').value) || 0;
+    const discountInput = document.getElementById('fixedDiscount');
+    const warningMsg = document.getElementById('discountWarning');
+
+    if (priceGBP <= 10.00) {
+      discountInput.value = 0;
+      discountInput.disabled = true;
+      warningMsg.style.display = 'block';
+    } else {
+      discountInput.disabled = false;
+      warningMsg.style.display = 'none';
+    }
+    calculate();
+  }
+
   // ডিসকাউন্ট ভ্যালিডেশন ফাংশন (১০০ টাকার সীমা এনফোর্স করে)
   function validateDiscount() {
     const discountInput = document.getElementById('fixedDiscount');
@@ -285,7 +317,6 @@
     } else if (value > 100) {
       discountInput.value = 100;
       errorMsg.style.display = 'block';
-      // ২ সেকেন্ড পর ওয়ার্নিং মেসেজটি চলে যাবে
       setTimeout(() => {
         errorMsg.style.display = 'none';
       }, 2000);
@@ -344,7 +375,8 @@
           document.getElementById('productPreview').style.display = "flex"; 
         }
         
-        calculate();
+        // দাম পরিবর্তনের ফাংশনটি কল করা যাতে ডিসকাউন্ট ফিল্ড লক/আনলক হয়
+        handlePriceChange();
         alert('সফলভাবে লাইভ দাম, ছবি এবং ওজন আপডেট করা হয়েছে!');
       }
     } catch (error) {
@@ -361,9 +393,16 @@
     const weightInput = parseFloat(document.getElementById('productWeight').value) || 0;
     const unit = document.getElementById('weightUnit').value;
     
-    let fixedDiscountBDT = parseFloat(document.getElementById('fixedDiscount').value) || 0;
+    // দাম ১০ পাউন্ডের কম হলে ডিসকাউন্ট সরাসরি ০ করে দেওয়া
+    let fixedDiscountBDT = 0;
+    if (priceGBP > 10.00) {
+      fixedDiscountBDT = parseFloat(document.getElementById('fixedDiscount').value) || 0;
+    } else {
+      document.getElementById('fixedDiscount').value = 0;
+    }
+
     if (fixedDiscountBDT < 0) fixedDiscountBDT = 0;
-    if (fixedDiscountBDT > 100) fixedDiscountBDT = 100; // সেফটি চেক
+    if (fixedDiscountBDT > 100) fixedDiscountBDT = 100;
 
     // ১. কেজি কনভার্সন
     let baseWeightKG = 0;
@@ -390,7 +429,7 @@
     const rawTotalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
     const rawTotalCostBDT = Math.round(rawTotalCostGBP * exchangeRate);
 
-    // ৭. ১০০ টাকার লিমিটসহ ডিসকাউন্ট বাদ দিয়ে চূড়ান্ত টোটাল
+    // ৭. চূড়ান্ত টোটাল পেএবল
     const finalTotalBDT = Math.max(0, rawTotalCostBDT - fixedDiscountBDT);
     const finalTotalGBP = finalTotalBDT / exchangeRate;
 
@@ -422,7 +461,8 @@
     document.getElementById('finalTotalCombined').innerText = '£' + finalTotalGBP.toFixed(2) + ' / ৳' + finalTotalBDT;
   }
 
-  calculate();
+  // ফার্স্ট টাইম রান
+  handlePriceChange();
 </script>
 
 </body>
