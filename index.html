@@ -79,9 +79,8 @@
       background-color: #a0d2d2;
       cursor: not-allowed;
     }
-    /* নতুন প্রোডাক্ট ইমেজ প্রিভিউ স্টাইল */
     .product-preview {
-      display: none; /* প্রথমাবস্থায় বন্ধ থাকবে */
+      display: none;
       flex-direction: column;
       align-items: center;
       text-align: center;
@@ -148,10 +147,20 @@
     .bold-text {
       font-weight: bold;
     }
+    .discount-text {
+      color: #d9534f; /* লাল রঙের ডিসকাউন্ট টেক্সট */
+      font-weight: bold;
+    }
     .divider {
       height: 1px;
       background-color: #ddd;
       margin: 12px 0;
+    }
+    .discount-error {
+      color: red;
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
     }
   </style>
 </head>
@@ -169,10 +178,9 @@
     </div>
   </div>
 
-  <!-- ২. প্রোডাক্ট ডিটেইলস (নাম, দাম ও ওজন) -->
+  <!-- ২. প্রোডাক্ট ডিটেইলস (নাম, দাম, ওজন ও ডিসকাউন্ট) -->
   <div class="card">
     
-    <!-- ইমেজ প্রিভিউ কন্টেইনার (ছবি পেলে ডাইনামিকলি চালু হবে) -->
     <div class="product-preview" id="productPreview">
       <img id="previewImg" src="" alt="Product Image">
       <div class="product-preview-title" id="previewTitle">Product Preview</div>
@@ -196,6 +204,16 @@
         <option value="Grams">Grams</option>
         <option value="KG">KG</option>
       </select>
+    </div>
+
+    <!-- নতুন ডিসকাউন্ট ফিল্ড -->
+    <div class="field-label">Discount % (Max 10%)</div>
+    <div class="input-group" style="flex-direction: column; align-items: stretch; gap: 0;">
+      <div style="display: flex; gap: 8px; width: 100%;">
+        <input type="number" id="discountPercent" value="0" min="0" max="10" step="1" oninput="validateDiscount()">
+        <span style="align-self: center; font-weight: bold; margin-left: 5px;">% OFF</span>
+      </div>
+      <div class="discount-error" id="discountError">সর্বোচ্চ ১০% ডিসকাউন্ট প্রযোজ্য!</div>
     </div>
 
   </div>
@@ -232,6 +250,15 @@
       </div>
     </div>
 
+    <!-- নতুন ডিসকাউন্ট ব্রেকডাউন রো -->
+    <div class="breakdown-row" id="discountRow" style="display: none;">
+      <span class="breakdown-label discount-text">Discount Applied (<span id="appliedDiscountLabel">0</span>%)</span>
+      <div class="breakdown-values">
+        <div class="discount-text" id="discountBDT">-৳ 0</div>
+        <div style="font-size: 12px; color: #d9534f;" id="discountGBP">-£ 0.00</div>
+      </div>
+    </div>
+
     <div class="divider"></div>
 
     <div class="breakdown-row" style="font-size: 16px; font-weight: bold;">
@@ -242,10 +269,31 @@
 </div>
 
 <script>
-  const exchangeRate = 170.0; // পাউন্ড রেট ১৭০ টাকা
-  const shippingRate = 7.0;   // প্রতি কেজি £৭
-  const marginPercent = 30.0; // আপনার মার্জিন ৩০%
-  const bufferPercent = 30.0; // বাফার ওজন ৩০%
+  const exchangeRate = 170.0; 
+  const shippingRate = 7.0;   
+  const marginPercent = 30.0; 
+  const bufferPercent = 30.0; 
+
+  // ডিসকাউন্ট ১০% এর বেশি টাইপ করা আটকাতে ভ্যালিডেশন
+  function validateDiscount() {
+    const discountInput = document.getElementById('discountPercent');
+    const errorMsg = document.getElementById('discountError');
+    let value = parseFloat(discountInput.value) || 0;
+
+    if (value < 0) {
+      discountInput.value = 0;
+    } else if (value > 10) {
+      discountInput.value = 10;
+      errorMsg.style.display = 'block';
+      // ২ সেকেন্ড পর এরর মেসেজটি অদৃশ্য হয়ে যাবে
+      setTimeout(() => {
+        errorMsg.style.display = 'none';
+      }, 2000);
+    } else {
+      errorMsg.style.display = 'none';
+    }
+    calculate();
+  }
 
   async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value;
@@ -257,8 +305,6 @@
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Fetching...";
     fetchButton.disabled = true;
-
-    // নতুন প্রতিবার রিকোয়েস্টের শুরুতে প্রিভিউ হাইড করে দেওয়া
     document.getElementById('productPreview').style.display = "none";
 
     try {
@@ -279,27 +325,23 @@
       if (data.error || data.price === undefined || data.price === null) {
         alert("লিংক থেকে সঠিক দাম বা ওজন খুঁজে পাওয়া যায়নি। অনুগ্রহ করে নিচে ম্যানুয়ালি সঠিক মান বসিয়ে নিন।");
       } else {
-        // প্রোডাক্টের নাম আপডেট
         if(data.name) {
            document.getElementById('productName').value = data.name;
         } else {
            document.getElementById('productName').value = "";
         }
 
-        // প্রোডাক্টের ডেসিমেল প্রাইস আপডেট করা
         const parsedPrice = parseFloat(data.price);
         document.getElementById('productPrice').value = parsedPrice.toFixed(2);
         
-        // ওজনের নিরাপত্তা ও সেট
         const finalWeight = (data.weight && parseFloat(data.weight) > 0) ? parseFloat(data.weight) : 500;
         document.getElementById('productWeight').value = finalWeight;
         document.getElementById('weightUnit').value = data.unit || "Grams";
 
-        // --- নতুন ছবি প্রিভিউ যোগ করা ---
         if (data.image) {
           document.getElementById('previewImg').src = data.image;
           document.getElementById('previewTitle').innerText = data.name || "Product Preview";
-          document.getElementById('productPreview').style.display = "flex"; // প্রিভিউ বক্স চালু করা হলো
+          document.getElementById('productPreview').style.display = "flex"; 
         }
         
         calculate();
@@ -318,7 +360,9 @@
     const priceGBP = parseFloat(document.getElementById('productPrice').value) || 0;
     const weightInput = parseFloat(document.getElementById('productWeight').value) || 0;
     const unit = document.getElementById('weightUnit').value;
+    const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
 
+    // ১. কেজি কনভার্সন
     let baseWeightKG = 0;
     if (unit === 'Grams') {
       baseWeightKG = weightInput / 1000;
@@ -326,20 +370,33 @@
       baseWeightKG = weightInput;
     }
 
+    // ২. বাফার ওজন সহ টোটাল ওজন (ব্যাকগ্রাউন্ডে ৩০% বাফার যোগ হবে)
     const totalWeightKG = baseWeightKG + (baseWeightKG * (bufferPercent / 100));
+
+    // ৩. শিপিং খরচ ও মার্জিন
     const shippingCostGBP = totalWeightKG * shippingRate;
     const marginCostGBP = priceGBP * (marginPercent / 100);
 
+    // ৪. সার্ভিস চার্জ
     const combinedServiceGBP = shippingCostGBP + marginCostGBP;
     const combinedServiceBDT = Math.round(combinedServiceGBP * exchangeRate);
 
-    const totalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
-    const totalCostBDT = Math.round(totalCostGBP * exchangeRate);
+    // ৫. ডিসকাউন্ট প্রয়োগের আগের মোট দাম
+    const rawTotalCostGBP = priceGBP + shippingCostGBP + marginCostGBP;
+
+    // ৬. ডিসকাউন্ট হিসাব
+    const discountCostGBP = rawTotalCostGBP * (discountPercent / 100);
+    const discountCostBDT = Math.round(discountCostGBP * exchangeRate);
+
+    // ৭. ডিসকাউন্ট কাটার পর চূড়ান্ত টোটাল
+    const finalTotalGBP = rawTotalCostGBP - discountCostGBP;
+    const finalTotalBDT = Math.round(finalTotalGBP * exchangeRate);
 
     const baseBDT = Math.round(priceGBP * exchangeRate);
 
-    document.getElementById('totalBDT').innerText = '৳ ' + totalCostBDT;
-    document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + totalCostGBP.toFixed(2);
+    // ইউজার ইন্টারফেসে ডাটা আপডেট
+    document.getElementById('totalBDT').innerText = '৳ ' + finalTotalBDT;
+    document.getElementById('totalGBP').innerText = 'Equivalent to £ ' + finalTotalGBP.toFixed(2);
     
     document.getElementById('baseBDT').innerText = '৳ ' + baseBDT;
     document.getElementById('baseGBP').innerText = '£ ' + priceGBP.toFixed(2);
@@ -349,9 +406,21 @@
     document.getElementById('serviceBDT').innerText = '৳ ' + combinedServiceBDT;
     document.getElementById('serviceGBP').innerText = '£ ' + combinedServiceGBP.toFixed(2);
 
-    document.getElementById('finalTotalCombined').innerText = '£' + totalCostGBP.toFixed(2) + ' / ৳' + totalCostBDT;
+    // ডিসকাউন্ট রো ভিজিবিলিটি হ্যান্ডলিং
+    const discountRow = document.getElementById('discountRow');
+    if (discountPercent > 0) {
+      discountRow.style.display = 'flex';
+      document.getElementById('appliedDiscountLabel').innerText = discountPercent;
+      document.getElementById('discountBDT').innerText = '-৳ ' + discountCostBDT;
+      document.getElementById('discountGBP').innerText = '-£ ' + discountCostGBP.toFixed(2);
+    } else {
+      discountRow.style.display = 'none';
+    }
+
+    document.getElementById('finalTotalCombined').innerText = '£' + finalTotalGBP.toFixed(2) + ' / ৳' + finalTotalBDT;
   }
 
+  // ইনিশিয়াল কল
   calculate();
 </script>
 
