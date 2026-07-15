@@ -35,7 +35,7 @@
     header {
       background: linear-gradient(135deg, var(--secondary), var(--primary-hover));
       color: white;
-      padding: 18px 24px;
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -46,30 +46,36 @@
     }
 
     .brand {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand span {
       background-color: #fca5a5;
       color: #991b1b;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: bold;
     }
 
-    /* Main Grid Layout */
+    .exchange-rate-box {
+      font-size: 13px;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* Main Responsive Grid Layout */
     .app-layout {
       display: grid;
       grid-template-columns: 260px 1fr 350px;
-      gap: 24px;
+      gap: 20px;
       max-width: 1440px;
-      margin: 24px auto;
+      margin: 20px auto;
       padding: 0 16px;
       width: 100%;
     }
@@ -110,6 +116,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      white-space: nowrap;
     }
 
     .category-item:hover, .category-item.active {
@@ -137,13 +144,13 @@
     .main-content {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     .card {
       background: var(--card-bg);
       border-radius: 16px;
-      padding: 24px;
+      padding: 20px;
       border: 1px solid var(--border);
       box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.03);
     }
@@ -151,7 +158,7 @@
     .card-title {
       font-size: 17px;
       font-weight: 700;
-      margin-bottom: 18px;
+      margin-bottom: 15px;
       color: var(--secondary);
       display: flex;
       justify-content: space-between;
@@ -165,6 +172,11 @@
       padding: 4px 10px;
       border-radius: 20px;
       font-weight: bold;
+    }
+
+    .search-box {
+      display: flex; 
+      gap: 8px;
     }
 
     input, select {
@@ -265,8 +277,8 @@
     .btn-card-add {
       background-color: #e0f2fe;
       color: var(--primary-hover);
-      font-size: 12px;
-      padding: 8px;
+      font-size: 13px;
+      padding: 10px;
       width: 100%;
       margin-top: auto;
     }
@@ -324,6 +336,7 @@
       position: absolute;
       right: 0;
       top: 12px;
+      padding: 4px;
     }
 
     /* Bill summary */
@@ -367,6 +380,7 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 16px;
     }
 
     .modal-content {
@@ -375,6 +389,8 @@
       border-radius: 20px;
       max-width: 460px;
       width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .bank-box {
@@ -402,9 +418,65 @@
       padding: 12px;
     }
 
+    /* 📱 RESPONSIVE MOBILE MEDIA QUERIES */
     @media (max-width: 1024px) {
-      .app-layout { grid-template-columns: 1fr; }
-      .cart-sidebar { position: relative; top: 0; height: auto; }
+      .app-layout {
+        grid-template-columns: 1fr;
+        margin: 10px auto;
+        gap: 16px;
+      }
+
+      header {
+        padding: 12px 16px;
+      }
+
+      .brand {
+        font-size: 18px;
+      }
+
+      /* মোবাইল ভিউতে ক্যাটাগরি মেনুটি হরাইজন্টাল স্ক্রোল হবে */
+      .sidebar-title {
+        padding-left: 4px;
+      }
+
+      .category-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+      }
+
+      .category-item {
+        scroll-snap-align: start;
+        flex: 0 0 auto;
+        gap: 8px;
+        padding: 10px 14px;
+      }
+
+      .category-item:hover, .category-item.active {
+        transform: none; /* ডিজেবল অ্যানিমেশন ফর মোবাইল */
+      }
+
+      .cart-sidebar {
+        position: relative;
+        top: 0;
+        height: auto;
+        overflow-y: visible;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+
+      .catalogue-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .product-card img {
+        height: 120px;
+      }
     }
   </style>
 </head>
@@ -412,12 +484,12 @@
 
 <header>
   <div class="brand">🛍️ বিলেতী পণ্য <span>Premium Storefront</span></div>
-  <div style="font-size: 14px; font-weight: 600;">এক্সচেঞ্জ রেট: £1 = ৳170.00</div>
+  <div class="exchange-rate-box">£1 = ৳170.00</div>
 </header>
 
 <div class="app-layout">
   
-  <!-- ১. ক্যাটাগরি মেনু সাইডবার -->
+  <!-- ১. ক্যাটাগরি মেনু সাইডবার (মোবাইলে হরাইজন্টাল স্ক্রোল হবে) -->
   <aside class="sidebar">
     <div class="sidebar-title">ক্যাটাগরি ফিল্টার</div>
     <ul class="category-menu">
@@ -458,7 +530,7 @@
     <!-- সার্চ ইঞ্জিন বক্স -->
     <div class="card" style="background: linear-gradient(135deg, #ffffff, #f0f9ff);">
       <div class="card-title">AI Smart Link Importer</div>
-      <div style="display: flex; gap: 8px;">
+      <div class="search-box">
         <input type="text" id="productLink" placeholder="এখানে ইউকে ওয়েবসাইটের প্রোডাক্ট লিংক পেস্ট করুন...">
         <button class="btn btn-primary" id="fetchBtn" onclick="simulateFetch()">Search & Catalog</button>
       </div>
@@ -501,7 +573,7 @@
     <div class="card bill-card">
       <div class="bill-row"><span>প্রোডাক্ট বেস প্রাইস:</span><span id="baseBDT">৳0</span></div>
       <div class="bill-row"><span>মোট ওজন (Aggregated):</span><span id="displayWeight" style="font-weight: bold;">0.000 KG</span></div>
-      <div class="bill-row"><span>লজিস্টিকস ও сервис চার্জ:</span><span id="serviceBDT">৳0</span></div>
+      <div class="bill-row"><span>লজিস্টিকস ও সার্ভিস চার্জ:</span><span id="serviceBDT">৳0</span></div>
       <div class="bill-row" id="discountRow" style="display: none; color: #ef4444; font-weight: bold;"><span>ডিসকাউন্ট:</span><span id="discountBDT">-৳0</span></div>
       <div style="height: 1px; background: #bbf7d0; margin: 8px 0;"></div>
       <div class="bill-row" style="align-items: center;">
@@ -553,7 +625,7 @@
 </div>
 
 <script>
-  // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ (যেমন: 88017XXXXXXXX) এখানে বসাবেন
+  // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ এখানে বসাবেন
   const myWhatsAppNumber = "8801700000000"; 
 
   const exchangeRate = 170.0; 
@@ -561,7 +633,6 @@
   const marginPercent = 30.0; 
   const bufferPercent = 30.0; 
 
-  // ডিফল্ট ডেমো ক্যাটালগ ডেটা (শুরুতে দেখানোর জন্য)
   let catalogueProducts = [
     { id: 101, name: "Levi's Men's Slim Fit Jeans stretchable", category: "Fashion & Apparels", price: 45.00, weight: 600, unit: "Grams", image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&auto=format&fit=crop" },
     { id: 102, name: "Logitech MX Master 3S Wireless Mouse UK", category: "Electronics & Gadgets", price: 89.99, weight: 141, unit: "Grams", image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=200&auto=format&fit=crop" },
@@ -573,7 +644,6 @@
   let globalFinalTotalBDT = 0;
   let globalTotalWeightKG = 0;
 
-  // AI ক্যাটাগরি ক্লাসিফায়ার কোর লজিক
   function classifyCategoryByAI(productName) {
     const pName = productName.toLowerCase();
     const keywords = {
@@ -590,7 +660,6 @@
     return "Others";
   }
 
-  // স্ক্র্যাপার সিমুলেশন এবং অটোমেটিক ক্যাটালগ সংযোজন
   async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value.trim();
     if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
@@ -612,8 +681,6 @@
 
       if (data.price !== undefined && data.price !== null) {
         const generatedName = data.name || "Imported UK Luxury Product";
-        
-        // ✨ AI ইঞ্জিন দ্বারা ক্যাটাগরি ডিটেকশন
         const aiSuggestedCategory = classifyCategoryByAI(generatedName);
 
         const newProduct = {
@@ -626,13 +693,11 @@
           image: data.image || "https://via.placeholder.com/200?text=UK+Product"
         };
 
-        // ক্যাটালগে অটোমেটিক টপ পজিশনে পুশ করা হচ্ছে
         catalogueProducts.unshift(newProduct);
-        
         document.getElementById('productLink').value = "";
         renderCatalogue();
         updateCatalogCounts();
-        alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে অটোমেটিকভাবে যুক্ত করা হয়েছে!`);
+        alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
       } else {
         alert("লিংক থেকে প্রাইস পাওয়া যায়নি। ম্যানুয়ালি চেক করুন।");
       }
@@ -645,7 +710,6 @@
     }
   }
 
-  // ক্যাটালগ রেন্ডারিং গ্রিড
   function renderCatalogue() {
     const container = document.getElementById('catalogueContainer');
     const filteredProducts = activeFilterCategory === "All" ? catalogueProducts : catalogueProducts.filter(p => p.category === activeFilterCategory);
@@ -671,7 +735,6 @@
     container.innerHTML = html;
   }
 
-  // ক্যাটালগ থেকে কার্টে অ্যাড লজিক
   function addIdToCart(id) {
     const product = catalogueProducts.find(p => p.id === id);
     if (!product) return;
@@ -746,7 +809,6 @@
     calculateSummary();
   }
 
-  // ই-কমার্স ম্যাথমেটিক্যাল ক্যালকুলেশন কোর ইঞ্জিন
   function calculateSummary() {
     globalTotalWeightKG = 0;
     let totalCombinedPriceGBP = 0;
@@ -797,7 +859,6 @@
     calculateSummary();
   }
 
-  // পেমেন্ট ও প্রুফ স্ক্রিনশট উইজেট গেটওয়ে
   function openPaymentModal() {
     document.getElementById('modalAmountBDT').innerText = '৳' + globalFinalTotalBDT.toLocaleString();
     document.getElementById('paymentModal').style.display = 'flex';
@@ -849,7 +910,6 @@
     window.open(`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  // অ্যাপ রানিং ইনিশিয়েলাইজেশন
   renderCatalogue();
   updateCatalogCounts();
   calculateSummary();
