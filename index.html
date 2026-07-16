@@ -194,6 +194,28 @@
     }
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-primary:hover { background-color: var(--primary-hover); }
+    
+    /* Manual Input Section Styling */
+    .manual-form-container {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 15px;
+      display: none;
+    }
+    .manual-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .manual-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* Catalogue Grid */
     .catalogue-grid {
       display: grid;
@@ -497,6 +519,29 @@
         <button class="btn btn-primary" id="fetchBtn" onclick="simulateFetch()">Search & Catalog</button>
       </div>
       <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">✨ লিংক সার্চ করলেই AI স্বয়ংক্রিয়ভাবে ক্যাটাগরি চিনে নিচের ক্যাটালগ গ্রিডে প্রোডাক্টটি লাইভ যুক্ত করে দেবে।</p>
+
+      <!-- ম্যানুয়াল প্রোডাক্ট এন্ট্রি ফর্ম (API ফেইল হলে এটি সচল হবে) -->
+      <div class="manual-form-container" id="manualForm">
+        <div style="font-weight: bold; font-size: 14px; color: #b45309; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+          ⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:
+        </div>
+        <div class="manual-grid">
+          <input type="text" id="manualName" placeholder="পণ্যের নাম (যেমন: Nike Air Max)">
+          <input type="number" id="manualPrice" placeholder="মূল্য (GBP £)" step="0.01" min="0">
+          <input type="number" id="manualWeight" placeholder="ওজন (Grams)" min="0">
+          <select id="manualCategory">
+            <option value="Fashion & Apparels">👕 Fashion & Goods</option>
+            <option value="Electronics & Gadgets">⚡ Gadgets & Tech</option>
+            <option value="Beauty & Cosmetics">💄 Cosmetics & Care</option>
+            <option value="Baby Care">👶 Baby Products</option>
+            <option value="Food & Groceries">🍏 Food items</option>
+            <option value="Others">🏷️ Uncategorized</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 12px; width: 100%; background-color: #d97706;" onclick="addManualProduct()">
+          Add Manual Product to Catalog & Cart 🛒
+        </button>
+      </div>
     </div>
     <!-- লাইভ প্রোডাক্ট ক্যাটালগ গ্রিড -->
     <div class="card">
@@ -632,6 +677,9 @@
     const linkInput = document.getElementById('productLink').value.trim();
     if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
     
+    // নতুন লিংক সার্চ শুরু হলে পূর্বের ম্যানুয়াল ফর্মটি লুকিয়ে রাখা ভালো
+    document.getElementById('manualForm').style.display = "none";
+
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Searching AI...";
     fetchButton.disabled = true;
@@ -662,16 +710,61 @@
         updateCatalogCounts();
         alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
       } else {
-        alert("লিংক থেকে প্রাইস পাওয়া যায়নি। ম্যানুয়ালি চেক করুন।");
+        throw new Error("Price not found in scraped data");
       }
     } catch (error) {
       console.error(error);
-      alert("তথ্যটি স্ক্র্যাপ করা যায়নি। ক্যাটালগে লাইভ টেস্ট করতে ডেমো প্রোডাক্টগুলো ব্যবহার করুন।");
+      alert("তথ্যটি স্বয়ংক্রিয়ভাবে স্ক্র্যাপ করা যায়নি। অনুগ্রহ করে নিচের ফর্মে প্রোডাক্টের সঠিক তথ্য দিয়ে ম্যানুয়ালি যোগ করুন।");
+      // API ফেইল হলে ম্যানুয়াল ফর্মটি প্রদর্শন করা হচ্ছে
+      document.getElementById('manualForm').style.display = "block";
     } finally {
       fetchButton.innerText = "Search & Catalog";
       fetchButton.disabled = false;
     }
   }
+
+  // ম্যানুয়াল ডাটা ফর্ম থেকে ক্যাটালগে প্রোডাক্ট যুক্ত করার মেথড
+  function addManualProduct() {
+    const name = document.getElementById('manualName').value.trim();
+    const price = parseFloat(document.getElementById('manualPrice').value);
+    const weight = parseFloat(document.getElementById('manualWeight').value);
+    const category = document.getElementById('manualCategory').value;
+
+    if (!name || isNaN(price) || isNaN(weight)) {
+      alert("দয়া করে পণ্যের নাম, মূল্য এবং ওজন সঠিকভাবে লিখুন!");
+      return;
+    }
+
+    const newManualProduct = {
+      id: Date.now(),
+      name: name,
+      category: category,
+      price: price,
+      weight: weight,
+      unit: "Grams",
+      image: "https://via.placeholder.com/200?text=Manual+Product"
+    };
+
+    // ক্যাটালগে যুক্ত করা হচ্ছে
+    catalogueProducts.unshift(newManualProduct);
+    
+    // ক্যাটালগ রেন্ডার ও কাউন্ট আপডেট
+    renderCatalogue();
+    updateCatalogCounts();
+
+    // সরাসরি কার্টেও পণ্যটি যোগ করে দেওয়া হচ্ছে যাতে ব্যবহারকারী দ্রুত কিনতে পারেন
+    addIdToCart(newManualProduct.id);
+
+    // ইনপুট ফিল্ড ও ফর্ম রিসেট করা হচ্ছে
+    document.getElementById('manualName').value = "";
+    document.getElementById('manualPrice').value = "";
+    document.getElementById('manualWeight').value = "";
+    document.getElementById('manualForm').style.display = "none";
+    document.getElementById('productLink').value = "";
+
+    alert("✨ ম্যানুয়ালি পণ্যটি ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে এবং সব হিসাব আপডেট করা হয়েছে!");
+  }
+
   function renderCatalogue() {
     const container = document.getElementById('catalogueContainer');
     const filteredProducts = activeFilterCategory === "All" ? catalogueProducts : catalogueProducts.filter(p => p.category === activeFilterCategory);
