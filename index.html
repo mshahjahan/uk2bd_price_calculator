@@ -560,7 +560,7 @@
         
         <div class="manual-grid">
           <input type="text" id="manualName" placeholder="পণ্যের নাম (যেমন: Nike Air Max)">
-          <input type="number" id="manualPrice" placeholder="मूल्य (GBP £)" step="0.01" min="0">
+          <input type="number" id="manualPrice" placeholder="मूल্য (GBP £)" step="0.01" min="0">
           <input type="number" id="manualWeight" placeholder="ওজন (Grams)" min="0">
           <select id="manualCategory">
             <option value="Fashion & Apparels">👕 Fashion & Goods</option>
@@ -571,9 +571,9 @@
             <option value="Others">🏷️ Uncategorized</option>
           </select>
         </div>
-        <!-- ডেসক্রিপশন ফিল্ড ফর্মের ভেতর যুক্ত করা হয়েছে -->
+        <!-- ডেসক্রিপশন ফিল্ড এখন আর বাধ্যতামূলক (Required) নয় -->
         <div style="margin-top: 10px;">
-          <textarea id="manualDescription" placeholder="পণ্যের সংক্ষিপ্ত বিবরণ বা আকর্ষনীয় বৈশিষ্ট্য দিন..."></textarea>
+          <textarea id="manualDescription" placeholder="পণ্যের সংক্ষিপ্ত বিবরণ দিন (ঐচ্ছিক - ফাঁকা রাখলে AI নিজেই নাম অনুযায়ী বিবরণ তৈরি করে নেবে)"></textarea>
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 12px;">
@@ -690,7 +690,6 @@
 </div>
 
 <script>
-  // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ (যেমন: 88017XXXXXXXX) নিচে সেট করুন
   const myWhatsAppNumber = "8801700000000"; 
   const exchangeRate = 170.0; 
   const shippingRate = 7.0;   
@@ -707,21 +706,18 @@
   let globalTotalWeightKG = 0;
   let proofUploaded = false; 
 
-  // ✨ আপগ্রেড করা AI ডেসক্রিপশন সামারাইজার লজিক (উপকারিতা ও উপাদানের ওপর ফোকাসড)
-  function summarizeDescriptionAI(desc) {
-    if (!desc || desc.includes("Premium quality imported item")) {
-      return `
-        <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;">
-          <div><b>💡 Why Use:</b> Direct premium care from the UK.</div>
-          <div><b>🧪 Contains:</b> Essential active ingredients.</div>
-          <div><b>🌿 Benefits:</b> Enhances health, nourishment, and natural glow.</div>
-        </div>
-      `;
+  // ✨ আপগ্রেড করা ইন্টেলিজেন্ট AI ডেসক্রিপশন জেনারেটর ও সামারাইজার
+  function summarizeDescriptionAI(desc, productName = "Premium Product", category = "Others") {
+    let rawText = desc ? desc.trim() : "";
+    
+    // যদি ডেসক্রিপশন একেবারে না থাকে, তবে পণ্যের নামের ওপর ভিত্তি করে ডাইনামিক AI ডেসক্রিপশন তৈরি করা হবে
+    if (!rawText || rawText.includes("Premium quality imported item")) {
+      rawText = `Experience the premium performance of ${productName}. Designed to offer top-tier convenience and exceptional reliability, this imported item fits perfectly into your high-quality lifestyle.`;
     }
     
-    let cleanText = desc.replace(/(click here|buy now|read more|all rights reserved|terms and conditions|shipping worldwide|free delivery)/gi, '').trim();
+    let cleanText = rawText.replace(/(click here|buy now|read more|all rights reserved|terms and conditions|shipping worldwide|free delivery)/gi, '').trim();
     
-    // ১. মূল উপাদান (What it contains) খোঁজার কিওয়ার্ডস
+    // ১. উপাদান বা বৈশিষ্ট্য (What it contains) জেনারেশন
     const containsKeywords = ["extract", "oil", "acid", "vitamin", "niacinamide", "collagen", "organic", "natural", "active", "serum", "hydrating", "formula", "zinc", "retinol", "hyaluronic", "cotton", "polyester", "leather"];
     let foundIngredients = [];
     containsKeywords.forEach(word => {
@@ -729,9 +725,21 @@
         foundIngredients.push(word.charAt(0).toUpperCase() + word.slice(1));
       }
     });
-    if (foundIngredients.length === 0) foundIngredients.push("Premium Active Formula");
+    
+    // ক্যাটাগরি ভিত্তিক ডাইনামিক ফিল্টার/ফলব্যাক
+    if (foundIngredients.length === 0) {
+      if (category.includes("Beauty")) {
+        foundIngredients = ["Active Nourishing Complex", "Vitamins", "Hydrating Essence"];
+      } else if (category.includes("Fashion")) {
+        foundIngredients = ["Premium Fabric", "Ergonomic Stitch", "Flexible Stretch"];
+      } else if (category.includes("Electronics")) {
+        foundIngredients = ["Smart Chipset", "Durable Build", "High-Speed Tech"];
+      } else {
+        foundIngredients = ["Premium Active Formula", "UK Quality Grade"];
+      }
+    }
 
-    // ২. কেন ব্যবহার করবেন ও কি উপকার পাবেন (Why & Benefits) খোঁজার কিওয়ার্ডস
+    // ২. কেন ব্যবহার করবেন ও কি উপকার পাবেন (Why & Benefits)
     const benefitKeywords = {
       "Nourishing & Repairing": ["repair", "nourish", "dry", "moisture", "hydrate", "damaged"],
       "Anti-Blemish & Clear Skin": ["acne", "blemish", "clear", "oil control", "pore", "spot", "brighten"],
@@ -745,15 +753,24 @@
         keyBenefits.push(benefitTitle);
       }
     }
-    if (keyBenefits.length === 0) keyBenefits.push("Boosts Overall Skin & Body Health");
+    
+    if (keyBenefits.length === 0) {
+      if (category.includes("Beauty") || category.includes("Baby")) {
+        keyBenefits = ["Gentle & Daily Care", "Deep Nourishment & Hydration"];
+      } else if (category.includes("Electronics")) {
+        keyBenefits = ["High-Performance Utility", "Ergonomic Daily Comfort"];
+      } else {
+        keyBenefits = ["Boosts Overall Lifestyle Quality", "Long Lasting Durability"];
+      }
+    }
 
-    // ৩. কেন ব্যবহার করবেন (Why Use) খোঁজার চেষ্টা করা
-    let whyUseText = cleanText.split(/[.!?]/).filter(sentence => sentence.length > 20)[0] || "Imported directly from the UK for high-quality, guaranteed daily care.";
+    // ৩. কেন ব্যবহার করবেন (Why Use)
+    let whyUseText = cleanText.split(/[.!?]/).filter(sentence => sentence.length > 20)[0] || `Premium grade import designed for direct luxury care and reliable use.`;
     if (whyUseText.length > 90) {
       whyUseText = whyUseText.substring(0, 90) + "...";
     }
 
-    // চূড়ান্ত রিপ্রেজেন্টেশন
+    // চূড়ান্ত আউটপুট জেনারেশন
     return `
       <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;">
         <div><b>💡 Why Use:</b> ${whyUseText}</div>
@@ -788,7 +805,7 @@
     fetchButton.disabled = true;
 
     try {
-      const apiURL = "http://localhost:3000/scrape"; // লোকালহোস্ট স্ক্র্যাপার URL
+      const apiURL = "http://localhost:3000/scrape"; 
       const response = await fetch(apiURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -804,6 +821,7 @@
       if (data && data.price !== undefined && data.price !== null) {
         const generatedName = data.name || "Imported UK Luxury Product";
         const aiSuggestedCategory = classifyCategoryByAI(generatedName);
+        
         const newProduct = {
           id: Date.now(),
           name: generatedName,
@@ -811,14 +829,15 @@
           price: parseFloat(data.price),
           weight: data.weight ? parseFloat(data.weight) : 500,
           unit: data.unit || "Grams",
-          description: data.description || "Premium quality product directly imported from United Kingdom.",
+          // যদি স্ক্র্যাপার থেকে কোনো ডেসক্রিপশন না আসে তবে ফাঁকা থাকবে, পরে ক্লায়েন্ট-সাইড AI এটি পূরণ করবে
+          description: data.description || "", 
           image: data.image || "https://via.placeholder.com/200?text=UK+Product"
         };
         catalogueProducts.unshift(newProduct);
         document.getElementById('productLink').value = "";
         renderCatalogue();
         updateCatalogCounts();
-        alert(`✨ AI Success: প্রোডাক্টটি ও এর বিবরণ চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
+        alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
       } else {
         throw new Error("Price is missing from data");
       }
@@ -937,7 +956,7 @@
       price: price,
       weight: weight,
       unit: "Grams",
-      description: description || "Premium imported product from United Kingdom.",
+      description: description, // ঐচ্ছিক, ফাঁকা থাকলেও সমস্যা নেই
       image: "https://via.placeholder.com/200?text=Manual+Product"
     };
 
@@ -948,7 +967,7 @@
     addIdToCart(newManualProduct.id);
     cancelForm();
 
-    alert("✨ ম্যানুয়ালি পণ্যটি ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে এবং সব হিসাব আপডেট করা হয়েছে!");
+    alert("✨ ম্যানুয়ালি পণ্যটি ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে!");
   }
 
   function cancelForm() {
@@ -972,8 +991,8 @@
     filteredProducts.forEach(product => {
       const priceBDT = Math.round(product.price * exchangeRate);
       
-      // ডেসক্রিপশনের AI সামারি তৈরি করা হচ্ছে (হুবহু বড় ডেসক্রিপশন দেখানো হচ্ছে না)
-      const shortDesc = summarizeDescriptionAI(product.description);
+      // ডেসক্রিপশন জেনারেটর কল করা হচ্ছে (ফাঁকা থাকলে এটি স্বয়ংক্রিয়ভাবে নাম দিয়ে ডেসক্রিপশন জেনারেট করবে)
+      const shortDesc = summarizeDescriptionAI(product.description, product.name, product.category);
       
       html += `
         <div class="product-card">
@@ -981,7 +1000,7 @@
           <img src="${product.image}" alt="img">
           <div class="product-card-title">${product.name}</div>
           
-          <!-- AI Summarized Description Card Area -->
+          <!-- Dynamic AI Summarized Area -->
           <div class="product-card-desc">${shortDesc}</div>
           
           <div class="product-card-meta" style="margin-top: 4px;">UK Price: <b>£${product.price.toFixed(2)}</b></div>
