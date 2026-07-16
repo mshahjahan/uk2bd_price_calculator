@@ -260,10 +260,9 @@
       font-size: 12px;
       color: #0369a1;
       background: #f0f9ff;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 6px;
       line-height: 1.4;
-      font-style: italic;
       border-left: 3px solid var(--primary);
     }
     .product-card-meta {
@@ -540,6 +539,7 @@
       </li>
     </ul>
   </aside>
+
   <!-- ২. মিডল প্যানেল: AI ক্যাটালগ ও সার্চ ইঞ্জিন -->
   <main class="main-content">
     
@@ -586,6 +586,7 @@
         </div>
       </div>
     </div>
+
     <!-- লাইভ প্রোডাক্ট ক্যাটালগ গ্রিড -->
     <div class="card">
       <div class="card-title">
@@ -598,6 +599,7 @@
       </div>
     </div>
   </main>
+
   <!-- ৩. রাইট সাইডবার: কার্ট ও লাইভ ইনভয়েস ক্যালকুলেটর -->
   <aside class="cart-sidebar">
     
@@ -634,6 +636,7 @@
     </div>
   </aside>
 </div>
+
 <!-- কাস্টমার ফর্ম এবং পেমেন্ট পপআপ মোডাল -->
 <div class="modal" id="paymentModal">
   <div class="modal-content">
@@ -667,7 +670,7 @@
         <span style="font-size: 11px; font-weight: bold; color: var(--text-muted);">TOTAL PAYABLE AMOUNT</span>
         <div class="total-bold" style="color: var(--success); font-size: 22px;" id="modalAmountBDT">৳0</div>
       </div>
-      <!-- বাধ্যতামূলক পেমেন্ট প্রুফ আপলোড -->
+      <!-- পেমেন্ট প্রুফ আপলোড -->
       <div class="form-group">
         <label>Upload Payment Receipt/Screenshot <span>*</span></label>
         <div class="upload-area" id="uploadBox" onclick="document.getElementById('paymentProofInput').click()">
@@ -676,7 +679,7 @@
           <center><img id="filePreview" style="max-width: 100px; max-height: 100px; margin-top: 8px; border-radius: 6px; display: none;"></center>
         </div>
       </div>
-      <!-- সাবমিট অর্ডার বাটন (হোয়াটসঅ্যাপে রিডাইরেক্ট করবে) -->
+      <!-- সাবমিট অর্ডার বাটন -->
       <button type="button" class="btn btn-whatsapp" id="whatsAppBtn" onclick="submitOrderForm()">
         💬 Submit Order & Send Details
       </button>
@@ -685,6 +688,7 @@
     </form>
   </div>
 </div>
+
 <script>
   // ⚠️ আপনার হোয়াটসঅ্যাপ নাম্বারটি কান্ট্রি কোড সহ (যেমন: 88017XXXXXXXX) নিচে সেট করুন
   const myWhatsAppNumber = "8801700000000"; 
@@ -703,36 +707,60 @@
   let globalTotalWeightKG = 0;
   let proofUploaded = false; 
 
-  // ✨ AI ডেসক্রিপশন সামারাইজার লজিক
-  // এটি আসল ডেসক্রিপশনের ভেতর থেকে অপ্রয়োজনীয় জটিল শব্দ বাদ দিয়ে প্রধান হাইলাইট ৩-৪টি শব্দ ও একটি চমৎকার ছোট পয়েন্টে রূপান্তর করে।
+  // ✨ আপগ্রেড করা AI ডেসক্রিপশন সামারাইজার লজিক (উপকারিতা ও উপাদানের ওপর ফোকাসড)
   function summarizeDescriptionAI(desc) {
-    if (!desc) return "Premium imported quality item.";
+    if (!desc || desc.includes("Premium quality imported item")) {
+      return `
+        <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;">
+          <div><b>💡 Why Use:</b> Direct premium care from the UK.</div>
+          <div><b>🧪 Contains:</b> Essential active ingredients.</div>
+          <div><b>🌿 Benefits:</b> Enhances health, nourishment, and natural glow.</div>
+        </div>
+      `;
+    }
     
-    // অপ্রয়োজনীয় বড় ফিলার বাক্য ও শব্দ বাদ দেওয়া
     let cleanText = desc.replace(/(click here|buy now|read more|all rights reserved|terms and conditions|shipping worldwide|free delivery)/gi, '').trim();
     
-    // মূল আকর্ষণীয় কিওয়ার্ডগুলো চিহ্নিত করা
-    const highlights = [];
-    const keywordList = ["premium", "slim fit", "durable", "wireless", "automatic", "organic", "waterproof", "leather", "cotton", "stretch", "silent", "high speed", "natural", "original", "hydrating", "anti-aging", "vitamin", "comfort"];
-    
-    keywordList.forEach(word => {
-      if (cleanText.toLowerCase().includes(word) && highlights.length < 3) {
-        highlights.push(word.charAt(0).toUpperCase() + word.slice(1));
+    // ১. মূল উপাদান (What it contains) খোঁজার কিওয়ার্ডস
+    const containsKeywords = ["extract", "oil", "acid", "vitamin", "niacinamide", "collagen", "organic", "natural", "active", "serum", "hydrating", "formula", "zinc", "retinol", "hyaluronic", "cotton", "polyester", "leather"];
+    let foundIngredients = [];
+    containsKeywords.forEach(word => {
+      if (cleanText.toLowerCase().includes(word) && foundIngredients.length < 3) {
+        foundIngredients.push(word.charAt(0).toUpperCase() + word.slice(1));
       }
     });
+    if (foundIngredients.length === 0) foundIngredients.push("Premium Active Formula");
 
-    // বাক্যের প্রথম ৭০টি ক্যারেক্টার নিয়ে একটি পরিষ্কার অংশ কাটা
-    let baseSummary = cleanText;
-    if (cleanText.length > 75) {
-      baseSummary = cleanText.substring(0, 75) + "...";
+    // ২. কেন ব্যবহার করবেন ও কি উপকার পাবেন (Why & Benefits) খোঁজার কিওয়ার্ডস
+    const benefitKeywords = {
+      "Nourishing & Repairing": ["repair", "nourish", "dry", "moisture", "hydrate", "damaged"],
+      "Anti-Blemish & Clear Skin": ["acne", "blemish", "clear", "oil control", "pore", "spot", "brighten"],
+      "Anti-Aging & Glow": ["wrinkle", "firming", "glow", "radiant", "smooth", "youthful", "aging"],
+      "Gentle & Daily Care": ["sensitive", "gentle", "daily", "soothing", "calming", "irritation", "comfort", "flexible"]
+    };
+
+    let keyBenefits = [];
+    for (const [benefitTitle, keywords] of Object.entries(benefitKeywords)) {
+      if (keywords.some(word => cleanText.toLowerCase().includes(word)) && keyBenefits.length < 2) {
+        keyBenefits.push(benefitTitle);
+      }
+    }
+    if (keyBenefits.length === 0) keyBenefits.push("Boosts Overall Skin & Body Health");
+
+    // ৩. কেন ব্যবহার করবেন (Why Use) খোঁজার চেষ্টা করা
+    let whyUseText = cleanText.split(/[.!?]/).filter(sentence => sentence.length > 20)[0] || "Imported directly from the UK for high-quality, guaranteed daily care.";
+    if (whyUseText.length > 90) {
+      whyUseText = whyUseText.substring(0, 90) + "...";
     }
 
-    // যদি কিছু মূল শব্দ পাওয়া যায়, তবে সেগুলোকে চমৎকার ট্যাগ হিসেবে সামনে জুড়ে দেওয়া
-    if (highlights.length > 0) {
-      return `✨ [${highlights.join(" • ")}] - ${baseSummary}`;
-    }
-    
-    return `✨ ${baseSummary}`;
+    // চূড়ান্ত রিপ্রেজেন্টেশন
+    return `
+      <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;">
+        <div><b>💡 Why Use:</b> ${whyUseText}</div>
+        <div><b>🧪 Contains:</b> ${foundIngredients.join(", ")}</div>
+        <div><b>🌿 Benefits:</b> ${keyBenefits.join(" & ")}</div>
+      </div>
+    `;
   }
 
   function classifyCategoryByAI(productName) {
@@ -760,7 +788,7 @@
     fetchButton.disabled = true;
 
     try {
-      const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
+      const apiURL = "http://localhost:3000/scrape"; // লোকালহোস্ট স্ক্র্যাপার URL
       const response = await fetch(apiURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -956,7 +984,7 @@
           <!-- AI Summarized Description Card Area -->
           <div class="product-card-desc">${shortDesc}</div>
           
-          <div class="product-card-meta">UK Price: <b>£${product.price.toFixed(2)}</b></div>
+          <div class="product-card-meta" style="margin-top: 4px;">UK Price: <b>£${product.price.toFixed(2)}</b></div>
           <div class="product-card-meta" style="color: var(--primary-hover); font-weight: bold;">Est. BDT: ৳${priceBDT.toLocaleString()}</div>
           <div class="product-card-meta">Est. Weight: ${product.weight} ${product.unit}</div>
           <div class="card-actions">
