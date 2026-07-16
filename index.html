@@ -310,6 +310,11 @@
       background: #f8fafc;
       border-radius: 6px;
     }
+    .cart-item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .cart-item-title {
       font-size: 13px;
       font-weight: bold;
@@ -658,7 +663,8 @@
   let activeFilterCategory = "All";
   let globalFinalTotalBDT = 0;
   let globalTotalWeightKG = 0;
-  let proofUploaded = false; // পেমেন্ট প্রুফ আপলোড ট্র্যাকিং ভেরিয়েবল
+  let proofUploaded = false; 
+
   function classifyCategoryByAI(productName) {
     const pName = productName.toLowerCase();
     const keywords = {
@@ -673,16 +679,16 @@
     }
     return "Others";
   }
+
   async function simulateFetch() {
     const linkInput = document.getElementById('productLink').value.trim();
     if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
     
-    // নতুন লিংক সার্চ শুরু হলে পূর্বের ম্যানুয়াল ফর্মটি লুকিয়ে রাখা ভালো
     document.getElementById('manualForm').style.display = "none";
-
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Searching AI...";
     fetchButton.disabled = true;
+
     try {
       const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
       const response = await fetch(apiURL, {
@@ -690,9 +696,15 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: linkInput })
       });
-      if (!response.ok) throw new Error("Fetch failed");
+      
+      if (!response.ok) {
+        throw new Error("API Response was not OK");
+      }
+      
       const data = await response.json();
-      if (data.price !== undefined && data.price !== null) {
+      
+      // ডাটা অবজেক্ট ঠিকভাবে এসেছে কিনা যাচাই
+      if (data && data.price !== undefined && data.price !== null) {
         const generatedName = data.name || "Imported UK Luxury Product";
         const aiSuggestedCategory = classifyCategoryByAI(generatedName);
         const newProduct = {
@@ -710,20 +722,24 @@
         updateCatalogCounts();
         alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
       } else {
-        throw new Error("Price not found in scraped data");
+        // এপিআই রেসপন্স দিয়েছে কিন্তু প্রাইস নেই
+        throw new Error("Price is missing from data");
       }
     } catch (error) {
-      console.error(error);
-      alert("তথ্যটি স্বয়ংক্রিয়ভাবে স্ক্র্যাপ করা যায়নি। অনুগ্রহ করে নিচের ফর্মে প্রোডাক্টের সঠিক তথ্য দিয়ে ম্যানুয়ালি যোগ করুন।");
-      // API ফেইল হলে ম্যানুয়াল ফর্মটি প্রদর্শন করা হচ্ছে
-      document.getElementById('manualForm').style.display = "block";
+      console.log("Error details:", error);
+      // এখানে সরাসরি ম্যানুয়াল ইনপুট ফর্মটি নিশ্চিতভাবে খুলে দেওয়া হচ্ছে
+      triggerManualForm();
     } finally {
       fetchButton.innerText = "Search & Catalog";
       fetchButton.disabled = false;
     }
   }
 
-  // ম্যানুয়াল ডাটা ফর্ম থেকে ক্যাটালগে প্রোডাক্ট যুক্ত করার মেথড
+  function triggerManualForm() {
+    alert("দুঃখিত, তথ্যটি স্বয়ংক্রিয়ভাবে স্ক্র্যাপ করা যায়নি। অনুগ্রহ করে ফর্মে প্রোডাক্টের সঠিক তথ্য দিয়ে ম্যানুয়ালি যোগ করুন।");
+    document.getElementById('manualForm').style.display = "block";
+  }
+
   function addManualProduct() {
     const name = document.getElementById('manualName').value.trim();
     const price = parseFloat(document.getElementById('manualPrice').value);
@@ -745,17 +761,16 @@
       image: "https://via.placeholder.com/200?text=Manual+Product"
     };
 
-    // ক্যাটালগে যুক্ত করা হচ্ছে
+    // ক্যাটালগে যোগ করা
     catalogueProducts.unshift(newManualProduct);
     
-    // ক্যাটালগ রেন্ডার ও কাউন্ট আপডেট
     renderCatalogue();
     updateCatalogCounts();
 
-    // সরাসরি কার্টেও পণ্যটি যোগ করে দেওয়া হচ্ছে যাতে ব্যবহারকারী দ্রুত কিনতে পারেন
+    // সরাসরি কার্টেও পণ্যটি যোগ করে দেওয়া হচ্ছে যাতে হিসাব কাজ করে
     addIdToCart(newManualProduct.id);
 
-    // ইনপুট ফিল্ড ও ফর্ম রিসেট করা হচ্ছে
+    // ইনপুট রিসেট
     document.getElementById('manualName').value = "";
     document.getElementById('manualPrice').value = "";
     document.getElementById('manualWeight').value = "";
@@ -787,6 +802,7 @@
     });
     container.innerHTML = html;
   }
+
   function addIdToCart(id) {
     const product = catalogueProducts.find(p => p.id === id);
     if (!product) return;
@@ -798,16 +814,19 @@
     }
     renderCart();
   }
+
   function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     renderCart();
   }
+
   function filterCategory(categoryName) {
     activeFilterCategory = categoryName;
     document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
     event.currentTarget.classList.add('active');
     renderCatalogue();
   }
+
   function updateCatalogCounts() {
     const counts = { "All": catalogueProducts.length, "Fashion": 0, "Electronics": 0, "Beauty": 0, "Baby": 0, "Food": 0, "Others": 0 };
     catalogueProducts.forEach(item => {
@@ -826,6 +845,7 @@
     document.getElementById('count-Food').innerText = counts["Food"];
     document.getElementById('count-Others').innerText = counts["Others"];
   }
+
   function renderCart() {
     const container = document.getElementById('cartContainer');
     const paymentBtn = document.getElementById('paymentBtn');
@@ -852,6 +872,7 @@
     container.innerHTML = html;
     calculateSummary();
   }
+
   function calculateSummary() {
     globalTotalWeightKG = 0;
     let totalCombinedPriceGBP = 0;
@@ -885,6 +906,7 @@
       discountRow.style.display = 'none';
     }
   }
+
   function validateDiscount() {
     const discountInput = document.getElementById('fixedDiscount');
     let value = parseFloat(discountInput.value) || 0;
@@ -892,20 +914,22 @@
     if (value > 100) discountInput.value = 100;
     calculateSummary();
   }
+
   function openPaymentModal() {
     document.getElementById('modalAmountBDT').innerText = '৳' + globalFinalTotalBDT.toLocaleString();
     document.getElementById('paymentModal').style.display = 'flex';
     
-    // রিসেট ফর্ম ভ্যালু এবং স্টেটমেন্ট
     document.getElementById('customerOrderForm').reset();
     document.getElementById('filePreview').style.display = "none";
     document.getElementById('uploadText').innerText = "📸 Click to Upload Receipt";
     document.getElementById('uploadBox').classList.remove('error');
     proofUploaded = false;
   }
+
   function closePaymentModal() {
     document.getElementById('paymentModal').style.display = 'none';
   }
+
   function handleProofUpload() {
     const fileInput = document.getElementById('paymentProofInput');
     const preview = document.getElementById('filePreview');
@@ -925,24 +949,21 @@
       proofUploaded = false;
     }
   }
-  // ফর্মের ডেটা এবং প্রুফ ভ্যালিডেশন করে সাবমিট করার মেথড
+
   function submitOrderForm() {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
     const uploadBox = document.getElementById('uploadBox');
-    // ফর্ম ফিল্ড ভ্যালিডেশন চেক
     if (!name || !phone || !address) {
       alert("দয়া করে ফর্মের সবকটি বাধ্যতামূলক ক্ষেত্র পূরণ করুন!");
       return;
     }
-    // পেমেন্ট প্রুফ ভ্যালিডেশন চেক
     if (!proofUploaded) {
       uploadBox.classList.add('error');
       alert("অর্ডার কনফার্ম করতে পেমেন্ট স্ক্রিনশট বা রিসিপ্ট আপলোড করা বাধ্যতামূলক!");
       return;
     }
-    // হোয়াটসঅ্যাপ মেসেজ বিল্ডার
     let itemDetails = "";
     cart.forEach((item, index) => {
       itemDetails += `${index + 1}. ${item.name} (Qty: ${item.qty})\n`;
@@ -959,9 +980,9 @@
                     `Standard Chartered Bank (Gulshan Branch)\n` +
                     `A/C: MD SHAHJAHAN (18 1135926 01)\n\n` +
                     `📎 _পেমেন্ট স্ক্রিনশট/স্লিপটি ফর্মে আপলোড করা হয়েছে। অনুগ্রহ করে হোয়াটসঅ্যাপেও ইমেজটি এটাচ করে সেন্ড করুন।_`;
-    // হোয়াটসঅ্যাপে রিডাইরেক্ট
     window.open(`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
   }
+
   renderCatalogue();
   updateCatalogCounts();
   calculateSummary();
