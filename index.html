@@ -195,7 +195,7 @@
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-primary:hover { background-color: var(--primary-hover); }
     
-    /* Manual Input Section Styling */
+    /* Manual/Edit Input Section Styling */
     .manual-form-container {
       background: #fffbeb;
       border: 1px solid #fef3c7;
@@ -270,17 +270,32 @@
       border-radius: 4px;
       font-weight: 600;
     }
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
     .btn-card-add {
       background-color: #e0f2fe;
       color: var(--primary-hover);
       font-size: 13px;
       padding: 10px;
-      width: 100%;
-      margin-top: auto;
+      flex: 2;
     }
     .btn-card-add:hover {
       background-color: var(--primary);
       color: white;
+    }
+    .btn-card-edit {
+      background-color: #f1f5f9;
+      color: #475569;
+      font-size: 13px;
+      padding: 10px;
+      flex: 1;
+    }
+    .btn-card-edit:hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
     }
     /* 3. Right Sidebar */
     .cart-sidebar {
@@ -525,11 +540,13 @@
       </div>
       <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">✨ লিংক সার্চ করলেই AI স্বয়ংক্রিয়ভাবে ক্যাটাগরি চিনে নিচের ক্যাটালগ গ্রিডে প্রোডাক্টটি লাইভ যুক্ত করে দেবে।</p>
 
-      <!-- ম্যানুয়াল প্রোডাক্ট এন্ট্রি ফর্ম (API ফেইল হলে এটি সচল হবে) -->
+      <!-- ডাইনামিক প্রোডাক্ট এন্ট্রি ও এডিট ফর্ম সেকশন -->
       <div class="manual-form-container" id="manualForm">
-        <div style="font-weight: bold; font-size: 14px; color: #b45309; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+        <div id="formTitleText" style="font-weight: bold; font-size: 14px; color: #b45309; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
           ⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:
         </div>
+        <input type="hidden" id="editingProductId" value=""> <!-- এডিটিং আইডি ট্র্যাক করতে -->
+        
         <div class="manual-grid">
           <input type="text" id="manualName" placeholder="পণ্যের নাম (যেমন: Nike Air Max)">
           <input type="number" id="manualPrice" placeholder="মূল্য (GBP £)" step="0.01" min="0">
@@ -543,9 +560,14 @@
             <option value="Others">🏷️ Uncategorized</option>
           </select>
         </div>
-        <button class="btn btn-primary" style="margin-top: 12px; width: 100%; background-color: #d97706;" onclick="addManualProduct()">
-          Add Manual Product to Catalog & Cart 🛒
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 12px;">
+          <button id="formSubmitBtn" class="btn btn-primary" style="width: 100%; background-color: #d97706;" onclick="saveProductData()">
+            Add Manual Product to Catalog & Cart 🛒
+          </button>
+          <button id="formCancelBtn" class="btn" style="background-color: #94a3b8; color: white; display: none;" onclick="cancelForm()">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
     <!-- লাইভ প্রোডাক্ট ক্যাটালগ গ্রিড -->
@@ -684,7 +706,7 @@
     const linkInput = document.getElementById('productLink').value.trim();
     if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
     
-    document.getElementById('manualForm').style.display = "none";
+    cancelForm(); // এডিটিং কোনো মোড খোলা থাকলে তা বন্ধ করে নতুন সার্চ সেশন চালু করবে
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Searching AI...";
     fetchButton.disabled = true;
@@ -703,7 +725,6 @@
       
       const data = await response.json();
       
-      // ডাটা অবজেক্ট ঠিকভাবে এসেছে কিনা যাচাই
       if (data && data.price !== undefined && data.price !== null) {
         const generatedName = data.name || "Imported UK Luxury Product";
         const aiSuggestedCategory = classifyCategoryByAI(generatedName);
@@ -722,12 +743,10 @@
         updateCatalogCounts();
         alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে "${aiSuggestedCategory}" ক্যাটালগে যুক্ত করা হয়েছে!`);
       } else {
-        // এপিআই রেসপন্স দিয়েছে কিন্তু প্রাইস নেই
         throw new Error("Price is missing from data");
       }
     } catch (error) {
       console.log("Error details:", error);
-      // এখানে সরাসরি ম্যানুয়াল ইনপুট ফর্মটি নিশ্চিতভাবে খুলে দেওয়া হচ্ছে
       triggerManualForm();
     } finally {
       fetchButton.innerText = "Search & Catalog";
@@ -737,7 +756,95 @@
 
   function triggerManualForm() {
     alert("দুঃখিত, তথ্যটি স্বয়ংক্রিয়ভাবে স্ক্র্যাপ করা যায়নি। অনুগ্রহ করে ফর্মে প্রোডাক্টের সঠিক তথ্য দিয়ে ম্যানুয়ালি যোগ করুন।");
+    
+    // ফর্মটিকে ম্যানুয়াল এন্ট্রি মোডে রূপান্তর করা হচ্ছে
+    document.getElementById('editingProductId').value = "";
+    document.getElementById('formTitleText').innerHTML = "⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:";
+    document.getElementById('formSubmitBtn').innerText = "Add Manual Product to Catalog & Cart 🛒";
+    document.getElementById('formSubmitBtn').style.backgroundColor = "#d97706";
+    document.getElementById('formCancelBtn').style.display = "inline-block";
+    
+    // ইনপুট রিসেট
+    document.getElementById('manualName').value = "";
+    document.getElementById('manualPrice').value = "";
+    document.getElementById('manualWeight').value = "";
+    
     document.getElementById('manualForm').style.display = "block";
+  }
+
+  // প্রোডাক্ট এডিট করতে ফর্ম ওপেন করার মেথড
+  function editProduct(id) {
+    const product = catalogueProducts.find(p => p.id === id);
+    if (!product) return;
+
+    // স্ক্রল করে উপরে ফর্ম সেকশনে নিয়ে যাবে
+    document.querySelector('.app-layout').scrollIntoView({ behavior: 'smooth' });
+
+    // ফর্মটিকে এডিট মোডে সাজানো হচ্ছে
+    document.getElementById('editingProductId').value = product.id;
+    document.getElementById('formTitleText').innerHTML = "✏️ পণ্য সম্পাদনা করুন (Editing Product Info):";
+    
+    document.getElementById('manualName').value = product.name;
+    document.getElementById('manualPrice').value = product.price;
+    document.getElementById('manualWeight').value = product.weight;
+    document.getElementById('manualCategory').value = product.category;
+
+    document.getElementById('formSubmitBtn').innerText = "Update Product Info 💾";
+    document.getElementById('formSubmitBtn').style.backgroundColor = "#10b981"; // সবুজ রঙের সেভ বাটন
+    document.getElementById('formCancelBtn').style.display = "inline-block";
+    
+    document.getElementById('manualForm').style.display = "block";
+  }
+
+  // ফর্মের ডেক্সিশন হ্যান্ডল করবে (নতুন পণ্য এড নাকি এডিটেড পণ্য সেভ)
+  function saveProductData() {
+    const editingId = document.getElementById('editingProductId').value;
+
+    if (editingId) {
+      // এটি এডিটেড প্রোডাক্ট আপডেট করার প্রসেস
+      updateExistingProduct(parseInt(editingId));
+    } else {
+      // নতুন ম্যানুয়াল প্রোডাক্ট যুক্ত করার প্রসেস
+      addManualProduct();
+    }
+  }
+
+  function updateExistingProduct(id) {
+    const name = document.getElementById('manualName').value.trim();
+    const price = parseFloat(document.getElementById('manualPrice').value);
+    const weight = parseFloat(document.getElementById('manualWeight').value);
+    const category = document.getElementById('manualCategory').value;
+
+    if (!name || isNaN(price) || isNaN(weight)) {
+      alert("দয়া করে পণ্যের নাম, মূল্য এবং ওজন সঠিকভাবে লিখুন!");
+      return;
+    }
+
+    // ১. ক্যাটালগের আইটেমটি খুঁজে বের করে আপডেট করা
+    const catalogIndex = catalogueProducts.findIndex(p => p.id === id);
+    if (catalogIndex !== -1) {
+      catalogueProducts[catalogIndex].name = name;
+      catalogueProducts[catalogIndex].price = price;
+      catalogueProducts[catalogIndex].weight = weight;
+      catalogueProducts[catalogIndex].category = category;
+    }
+
+    // ২. কার্টের ভেতরে ঐ সেম পণ্যটি আগে থেকেই যোগ করা থাকলে তার ডাটাও আপডেট করা
+    const cartIndex = cart.findIndex(p => p.id === id);
+    if (cartIndex !== -1) {
+      cart[cartIndex].name = name;
+      cart[cartIndex].price = price;
+      cart[cartIndex].weight = weight;
+      cart[cartIndex].category = category;
+    }
+
+    // UI রিফ্রেশ করা ও গণনা আপডেট
+    renderCatalogue();
+    updateCatalogCounts();
+    renderCart(); // কার্টের তথ্য ও রেন্ডার রিফ্রেশ করা যাতে বিলিং এ হুবহু কাজ করে
+    cancelForm();
+
+    alert("✨ পণ্যটির তথ্য সফলভাবে ক্যাটালগ ও কার্ট সেকশনে আপডেট করা হয়েছে!");
   }
 
   function addManualProduct() {
@@ -761,23 +868,24 @@
       image: "https://via.placeholder.com/200?text=Manual+Product"
     };
 
-    // ক্যাটালগে যোগ করা
     catalogueProducts.unshift(newManualProduct);
     
     renderCatalogue();
     updateCatalogCounts();
-
-    // সরাসরি কার্টেও পণ্যটি যোগ করে দেওয়া হচ্ছে যাতে হিসাব কাজ করে
     addIdToCart(newManualProduct.id);
+    cancelForm();
 
-    // ইনপুট রিসেট
+    alert("✨ ম্যানুয়ালি পণ্যটি ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে এবং সব হিসাব আপডেট করা হয়েছে!");
+  }
+
+  function cancelForm() {
+    // ফর্ম হাইড ও রিসেট করা
+    document.getElementById('editingProductId').value = "";
     document.getElementById('manualName').value = "";
     document.getElementById('manualPrice').value = "";
     document.getElementById('manualWeight').value = "";
     document.getElementById('manualForm').style.display = "none";
-    document.getElementById('productLink').value = "";
-
-    alert("✨ ম্যানুয়ালি পণ্যটি ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে এবং সব হিসাব আপডেট করা হয়েছে!");
+    document.getElementById('formCancelBtn').style.display = "none";
   }
 
   function renderCatalogue() {
@@ -796,7 +904,10 @@
           <div class="product-card-title">${product.name}</div>
           <div class="product-card-meta">Price: <b>£${product.price.toFixed(2)}</b></div>
           <div class="product-card-meta">Est. Weight: ${product.weight} ${product.unit}</div>
-          <button class="btn btn-card-add" onclick="addIdToCart(${product.id})">Add to Bag 🛒</button>
+          <div class="card-actions">
+            <button class="btn btn-card-add" onclick="addIdToCart(${product.id})">Add 🛒</button>
+            <button class="btn btn-card-edit" onclick="editProduct(${product.id})">Edit ✏️</button>
+          </div>
         </div>
       `;
     });
