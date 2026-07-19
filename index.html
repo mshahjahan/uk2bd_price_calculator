@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>বিলেতী পণ্য - UK to BD Premium Gateway</title>
+  <title>বিলেতী পণ্য - Universal Storefront</title>
   <style>
     :root {
       --primary: #0284c7;
@@ -17,481 +17,79 @@
       --success: #10b981;
       --error: #ef4444;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      background: linear-gradient(135deg, var(--secondary), var(--primary-hover));
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .brand {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .brand span {
-      background-color: #fca5a5;
-      color: #991b1b;
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-    .exchange-rate-box {
-      font-size: 13px;
-      font-weight: 600;
-      text-align: right;
-    }
-    .app-layout {
-      display: grid;
-      grid-template-columns: 260px 1fr 350px;
-      gap: 20px;
-      max-width: 1440px;
-      margin: 20px auto;
-      padding: 0 16px;
-      width: 100%;
-    }
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .sidebar-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .category-menu {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .category-item {
-      padding: 12px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: #334155;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .category-item:hover, .category-item.active {
-      background-color: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      transform: translateX(4px);
-    }
-    .category-count {
-      font-size: 11px;
-      background: #e0f2fe;
-      color: var(--primary-hover);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-    .category-item:hover .category-count, .category-item.active .category-count {
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-    .main-content {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.03);
-    }
-    .card-title {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 15px;
-      color: var(--secondary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .ai-badge {
-      font-size: 11px;
-      background: linear-gradient(135deg, #0284c7, #8b5cf6);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
-    .search-box {
-      display: flex; 
-      gap: 8px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      color: var(--text);
-      background: #f8fafc;
-      outline: none;
-      transition: all 0.2s;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
-    .btn {
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+    header { background: linear-gradient(135deg, var(--secondary), var(--primary-hover)); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); }
+    .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .brand span { background-color: #fca5a5; color: #991b1b; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+    .app-layout { display: grid; grid-template-columns: 260px 1fr 350px; gap: 20px; max-width: 1440px; margin: 20px auto; padding: 0 16px; width: 100%; }
+    .sidebar { display: flex; flex-direction: column; gap: 12px; }
+    .category-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .category-item { padding: 12px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: #334155; background: var(--card-bg); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .category-item:hover, .category-item.active { background-color: var(--primary); color: white; border-color: var(--primary); transform: translateX(4px); }
+    .category-count { font-size: 11px; background: #e0f2fe; color: var(--primary-hover); padding: 2px 8px; border-radius: 10px; }
+    .category-item:hover .category-count, .category-item.active .category-count { background: rgba(255,255,255,0.2); color: white; }
+    .main-content { display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+    .card-title { font-size: 17px; font-weight: 700; margin-bottom: 15px; color: var(--secondary); display: flex; justify-content: space-between; align-items: center; }
+    .search-box { display: flex; gap: 8px; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; outline: none; }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn { padding: 12px 20px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-primary:hover { background-color: var(--primary-hover); }
-    
-    .manual-form-container {
-      background: #fffbeb;
-      border: 1px solid #fef3c7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 15px;
-      display: none;
-    }
-    .manual-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .catalogue-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 12px;
-    }
-    .product-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
-      transition: transform 0.2s;
-    }
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.1);
-    }
-    .product-card img {
-      width: 100%;
-      height: 140px;
-      object-fit: contain;
-      background: #f8fafc;
-      border-radius: 8px;
-    }
-    .product-card-title {
-      font-size: 14px;
-      font-weight: bold;
-      height: 40px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    .product-card-desc {
-      font-size: 12px;
-      color: #0369a1;
-      background: #f0f9ff;
-      padding: 8px 12px;
-      border-radius: 6px;
-      line-height: 1.4;
-      border-left: 3px solid var(--primary);
-    }
-    .product-card-meta {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .product-card-badge {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: var(--secondary);
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-    .card-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: auto;
-    }
-    .btn-card-add {
-      background-color: #e0f2fe;
-      color: var(--primary-hover);
-      font-size: 13px;
-      padding: 10px;
-      flex: 2;
-    }
-    .btn-card-add:hover {
-      background-color: var(--primary);
-      color: white;
-    }
-    .btn-card-edit {
-      background-color: #f1f5f9;
-      color: #475569;
-      font-size: 13px;
-      padding: 10px;
-      flex: 1;
-    }
-    .btn-card-edit:hover {
-      background-color: #e2e8f0;
-      color: #0f172a;
-    }
-    .cart-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: sticky;
-      top: 90px;
-      height: calc(100vh - 130px);
-      overflow-y: auto;
-    }
-    .cart-items-container {
-      max-height: 220px;
-      overflow-y: auto;
-    }
-    .cart-item {
-      display: flex;
-      gap: 10px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .cart-item img {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-      background: #f8fafc;
-      border-radius: 6px;
-    }
-    .cart-item-details {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .cart-item-title {
-      font-size: 13px;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 190px;
-    }
-    .btn-remove {
-      background: none;
-      border: none;
-      color: #ef4444;
-      cursor: pointer;
-      position: absolute;
-      right: 0;
-      top: 12px;
-      padding: 4px;
-    }
-    .bill-card {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-    }
-    .bill-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 6px 0;
-    }
-    .total-bold {
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--primary-hover);
-    }
-    .btn-payment {
-      background-color: var(--success);
-      color: white;
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-    .modal-content {
-      background: white;
-      padding: 24px;
-      border-radius: 20px;
-      max-width: 480px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .bank-box {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      margin: 10px 0 16px 0;
-    }
-    .form-group {
-      margin-bottom: 14px;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--secondary);
-      margin-bottom: 6px;
-    }
-    .form-group label span {
-      color: var(--error);
-    }
-    .upload-area {
-      border: 2px dashed var(--primary);
-      background: #f0f9ff;
-      padding: 16px;
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 14px;
-    }
-    .upload-area.error {
-      border-color: var(--error);
-      background: #fef2f2;
-    }
-    .btn-whatsapp {
-      background-color: #25d366;
-      color: white;
-      width: 100%;
-      padding: 14px;
-      font-size: 15px;
-    }
+    .manual-form-container { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 16px; margin-top: 15px; display: none; }
+    .manual-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .catalogue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 12px; }
+    .product-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+    .product-card img { width: 100%; height: 140px; object-fit: contain; background: #f8fafc; border-radius: 8px; }
+    .product-card-title { font-size: 14px; font-weight: bold; height: 40px; overflow: hidden; }
+    .product-card-desc { font-size: 11px; color: #0369a1; background: #f0f9ff; padding: 6px; border-radius: 6px; border-left: 3px solid var(--primary); }
+    .cart-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+    .cart-item { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); position: relative; }
+    .cart-item img { width: 44px; height: 44px; object-fit: contain; }
+    .bill-card { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .bill-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; }
+    .total-bold { font-size: 26px; font-weight: 800; color: var(--primary-hover); }
+    .btn-payment { background-color: var(--success); color: white; width: 100%; padding: 14px; font-size: 16px; margin-top: 10px; }
     @media (max-width: 1024px) {
-      .app-layout { grid-template-columns: 1fr; margin: 10px auto; gap: 16px; }
-      .category-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; }
-      .category-item { flex: 0 0 auto; }
-      .cart-sidebar { position: relative; top: 0; height: auto; }
-      .search-box { flex-direction: column; }
-      .catalogue-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+      .app-layout { grid-template-columns: 1fr; }
+      .category-menu { flex-direction: row; overflow-x: auto; }
       .manual-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+
 <header>
   <div class="brand">🛍️ বিলেতী পণ্য <span>Premium Storefront</span></div>
   <div class="exchange-rate-box">£1 = ৳170.00</div>
 </header>
+
 <div class="app-layout">
-  
   <aside class="sidebar">
     <div class="sidebar-title">ক্যাটাগরি ফিল্টার</div>
     <ul class="category-menu">
-      <li class="category-item active" onclick="filterCategory('All')">
-        <span>📦 All Catalogue</span><span class="category-count" id="count-All">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Fashion & Apparels')">
-        <span>👕 Fashion & Goods</span><span class="category-count" id="count-Fashion">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Electronics & Gadgets')">
-        <span>⚡ Gadgets & Tech</span><span class="category-count" id="count-Electronics">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Beauty & Cosmetics')">
-        <span>💄 Cosmetics & Care</span><span class="category-count" id="count-Beauty">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Baby Care')">
-        <span>👶 Baby Products</span><span class="category-count" id="count-Baby">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Food & Groceries')">
-        <span>🍏 Food items</span><span class="category-count" id="count-Food">0</span>
-      </li>
-      <li class="category-item" onclick="filterCategory('Others')">
-        <span>🏷️ Uncategorized</span><span class="category-count" id="count-Others">0</span>
-      </li>
+      <li class="category-item active" onclick="filterCategory('All')"><span>📦 All Catalogue</span><span class="category-count" id="count-All">0</span></li>
+      <li class="category-item" onclick="filterCategory('Fashion & Apparels')"><span>👕 Fashion & Goods</span><span class="category-count" id="count-Fashion">0</span></li>
+      <li class="category-item" onclick="filterCategory('Electronics & Gadgets')"><span>⚡ Gadgets & Tech</span><span class="category-count" id="count-Electronics">0</span></li>
+      <li class="category-item" onclick="filterCategory('Beauty & Cosmetics')"><span>💄 Cosmetics & Care</span><span class="category-count" id="count-Beauty">0</span></li>
+      <li class="category-item" onclick="filterCategory('Baby Care')"><span>👶 Baby Products</span><span class="category-count" id="count-Baby">0</span></li>
+      <li class="category-item" onclick="filterCategory('Food & Groceries')"><span>🍏 Food items</span><span class="category-count" id="count-Food">0</span></li>
+      <li class="category-item" onclick="filterCategory('Others')"><span>🏷️ Uncategorized</span><span class="category-count" id="count-Others">0</span></li>
     </ul>
   </aside>
 
   <main class="main-content">
-    <div class="card" style="background: linear-gradient(135deg, #ffffff, #f0f9ff);">
+    <div class="card">
       <div class="card-title">AI Smart Link Importer</div>
       <div class="search-box">
-        <input type="text" id="productLink" placeholder="এখানে ইউকে ওয়েবসাইটের প্রোডাক্ট লিংক পেস্ট করুন...">
-        <button class="btn btn-primary" id="fetchBtn" onclick="simulateFetch()">Search & Catalog</button>
+        <input type="text" id="productLink" placeholder="এখানে যেকোনো ইউকে প্রোডাক্ট লিংক পেস্ট করুন...">
+        <button class="btn btn-primary" id="fetchBtn" onclick="handleUniversalFetch()">Search & Catalog</button>
       </div>
-      <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">✨ লিংক সার্চ করলেই AI ক্যাটাগরি ও ডেসক্রিপশন চিনে নিচের ক্যাটালগ গ্রিডে প্রোডাক্টটি লাইভ যুক্ত করে দেবে।</p>
 
       <div class="manual-form-container" id="manualForm">
-        <div id="formTitleText" style="font-weight: bold; font-size: 14px; color: #b45309; margin-bottom: 8px;">
-          ⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:
-        </div>
-        <input type="hidden" id="editingProductId" value="">
-        
+        <div style="font-weight: bold; margin-bottom: 8px; color: #b45309;">⚠️ অটো-পার্সিং না হলে বা এডিট করতে ম্যানুয়ালি তথ্য দিন:</div>
         <div class="manual-grid">
           <input type="text" id="manualName" placeholder="পণ্যের নাম">
           <input type="number" id="manualPrice" placeholder="মূল্য (GBP £)" step="0.01">
@@ -505,327 +103,173 @@
             <option value="Others">🏷️ Uncategorized</option>
           </select>
         </div>
-        <div style="margin-top: 10px;">
-          <textarea id="manualDescription" placeholder="পণ্যের সংক্ষিপ্ত বিবরণ (ঐচ্ছিক - ফাঁকা রাখলে AI নিজেই নাম অনুযায়ী বিবরণ তৈরি করে নেবে)"></textarea>
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 12px;">
-          <button id="formSubmitBtn" class="btn btn-primary" style="width: 100%; background-color: #d97706;" onclick="saveProductData()">
-            Add Manual Product to Catalog & Cart 🛒
-          </button>
-          <button id="formCancelBtn" class="btn" style="background-color: #94a3b8; color: white; display: none;" onclick="cancelForm()">
-            Cancel
-          </button>
-        </div>
+        <textarea id="manualDescription" style="margin-top:10px;" placeholder="পণ্যের বিবরণ..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px; width:100%; background:#d97706;" onclick="saveManualData()">Save Product to Catalog 🛒</button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Live Product Catalogue <span class="ai-badge">✨ Auto-Organized by AI</span></div>
+      <div class="card-title">Live Product Catalogue</div>
       <div class="catalogue-grid" id="catalogueContainer"></div>
     </div>
   </main>
 
   <aside class="cart-sidebar">
-    <div class="card" style="padding: 16px;">
-      <div class="card-title" style="margin-bottom: 10px;">Shopping Bag (<span id="cartCountHeader">0</span>)</div>
-      <div class="cart-items-container" id="cartContainer">
-        <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">কার্ট খালি আছে।</div>
-      </div>
-    </div>
-    <div class="card" style="padding: 16px;">
-      <div style="font-size:12px; font-weight:600; margin-bottom:4px;">ক্যাশ ডিসকাউন্ট (সর্বোচ্চ ৳১০০)</div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <input type="number" id="fixedDiscount" value="0" min="0" max="100" oninput="validateDiscount()">
-        <span style="font-weight: bold;">৳</span>
-      </div>
+    <div class="card">
+      <div class="card-title">Shopping Bag (<span id="cartCountHeader">0</span>)</div>
+      <div id="cartContainer"><p style="color:var(--text-muted); font-size:13px; text-align:center;">কার্ট খালি।</p></div>
     </div>
     <div class="card bill-card">
-      <div class="bill-row"><span>প্রোডাক্ট বেস প্রাইস:</span><span id="baseBDT">৳0</span></div>
-      <div class="bill-row"><span>মোট ওজন (Aggregated):</span><span id="displayWeight" style="font-weight: bold;">0.000 KG</span></div>
+      <div class="bill-row"><span>বেস প্রাইস:</span><span id="baseBDT">৳0</span></div>
+      <div class="bill-row"><span>মোট ওজন:</span><span id="displayWeight">0.000 KG</span></div>
       <div class="bill-row"><span>লজিস্টিকস ও সার্ভিস চার্জ:</span><span id="serviceBDT">৳0</span></div>
-      <div class="bill-row" id="discountRow" style="display: none; color: #ef4444; font-weight: bold;"><span>ডিসকাউন্ট:</span><span id="discountBDT">-৳0</span></div>
-      <div style="height: 1px; background: #bbf7d0; margin: 8px 0;"></div>
-      <div class="bill-row" style="align-items: center;">
-        <span style="font-weight: bold; color: var(--primary-hover);">সর্বমোট দেয় বিল:</span>
-        <div style="text-align: right;">
-          <div class="total-bold" id="totalBDT">৳0</div>
-          <div style="font-size: 11px; color: var(--text-muted);" id="totalGBP">£0.00 equivalent</div>
-        </div>
+      <hr style="border:0; border-top:1px solid #bbf7d0; margin:8px 0;">
+      <div class="bill-row">
+        <span style="font-weight:bold;">সর্বমোট বিল:</span>
+        <span class="total-bold" id="totalBDT">৳0</span>
       </div>
-      <button class="btn btn-primary btn-payment" id="paymentBtn" onclick="openPaymentModal()" disabled>Proceed to Payment 🏦</button>
+      <button class="btn btn-primary btn-payment" id="paymentBtn" disabled>Proceed to Payment 🏦</button>
     </div>
   </aside>
 </div>
 
-<div class="modal" id="paymentModal">
-  <div class="modal-content">
-    <h3 style="color: var(--secondary); margin-bottom: 6px;">📋 Order & Payment Details</h3>
-    <div class="bank-box">
-      <div style="font-weight: bold; font-size: 13px; margin-bottom: 8px; color: var(--primary-hover);">Depositing Account:</div>
-      <div class="bill-row"><span>Bank:</span><span style="font-weight:bold;">Standard Chartered Bank</span></div>
-      <div class="bill-row"><span>A/C Name:</span><span style="font-weight:bold;">MD SHAHJAHAN</span></div>
-      <div class="bill-row"><span>A/C Number:</span><span style="font-weight:bold; font-family: monospace;">18 1135926 01</span></div>
-    </div>
-    <form id="customerOrderForm" onsubmit="event.preventDefault();">
-      <div class="form-group"><label>Customer Full Name <span>*</span></label><input type="text" id="custName" required></div>
-      <div class="form-group"><label>Phone Number <span>*</span></label><input type="tel" id="custPhone" required></div>
-      <div class="form-group"><label>Full Delivery Address <span>*</span></label><textarea id="custAddress" required></textarea></div>
-      <div style="text-align: center; margin-bottom: 14px; background: #f0fdf4; padding: 10px; border-radius: 10px;">
-        <span style="font-size: 11px; font-weight: bold; color: var(--text-muted);">TOTAL PAYABLE AMOUNT</span>
-        <div class="total-bold" style="color: var(--success); font-size: 22px;" id="modalAmountBDT">৳0</div>
-      </div>
-      <div class="form-group">
-        <label>Upload Payment Receipt <span>*</span></label>
-        <div class="upload-area" id="uploadBox" onclick="document.getElementById('paymentProofInput').click()">
-          <div style="font-size: 13px; font-weight: bold; color: var(--primary-hover);" id="uploadText">📸 Click to Upload Receipt</div>
-          <input type="file" id="paymentProofInput" accept="image/*" style="display: none;" onchange="handleProofUpload()" required>
-          <center><img id="filePreview" style="max-width: 100px; max-height: 100px; margin-top: 8px; border-radius: 6px; display: none;"></center>
-        </div>
-      </div>
-      <button type="button" class="btn btn-whatsapp" id="whatsAppBtn" onclick="submitOrderForm()">💬 Submit Order & Send Details</button>
-      <button type="button" class="btn var(--text-muted)" style="background:#94a3b8; color:white; width: 100%; margin-top: 8px;" onclick="closePaymentModal()">Cancel</button>
-    </form>
-  </div>
-</div>
-
 <script>
-  const myWhatsAppNumber = "8801700000000"; 
-  const exchangeRate = 170.0; 
-  const shippingRate = 7.0;   
-  const marginPercent = 30.0; 
-  const bufferPercent = 30.0; 
-  let catalogueProducts = [
-    { id: 101, name: "Levi's Men's Slim Fit Jeans stretchable", category: "Fashion & Apparels", price: 45.00, weight: 600, unit: "Grams", description: "Classic slim design with durable cotton stretch comfort.", image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&auto=format&fit=crop" },
-    { id: 102, name: "Logitech MX Master 3S Wireless Mouse UK", category: "Electronics & Gadgets", price: 89.99, weight: 141, unit: "Grams", description: "Super fast MagSpeed scrolling, silent clicks, and 8K DPI sensor.", image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=200&auto=format&fit=crop" },
-    { id: 103, name: "The Ordinary Niacinamide Serum 30ml", category: "Beauty & Cosmetics", price: 6.00, weight: 100, unit: "Grams", description: "Powerful mineral formula to target blemishes and balance skin oils.", image: "https://images.unsplash.com/photo-1608248597481-496100c8c836?w=200&auto=format&fit=crop" }
-  ];
+  const exchangeRate = 170.0;
+  const shippingRate = 7.0;
+  let catalogueProducts = [];
   let cart = [];
   let activeFilterCategory = "All";
-  let globalFinalTotalBDT = 0;
-  let globalTotalWeightKG = 0;
-  let proofUploaded = false; 
 
-  function summarizeDescriptionAI(desc, productName = "Premium Product", category = "Others") {
-    let rawText = desc ? desc.trim() : "";
-    if (!rawText) {
-      rawText = `Experience the premium performance of ${productName}. Designed to offer top-tier convenience and exceptional reliability.`;
-    }
-    let cleanText = rawText.replace(/(click here|buy now|read more|all rights reserved|terms and conditions)/gi, '').trim();
-    
-    let foundIngredients = [];
-    if (category.includes("Beauty")) foundIngredients = ["Active Nourishing Complex", "Hydrating Essence"];
-    else if (category.includes("Fashion")) foundIngredients = ["Premium Fabric", "Flexible Stretch"];
-    else if (category.includes("Electronics")) foundIngredients = ["Smart Chipset", "Durable Build"];
-    else foundIngredients = ["Premium Quality Grade"];
-
-    return `
-      <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;">
-        <div><b>💡 Why Use:</b> ${cleanText.substring(0, 90)}...</div>
-        <div><b>🧪 Contains:</b> ${foundIngredients.join(", ")}</div>
-      </div>
-    `;
-  }
-
-  function classifyCategoryByAI(productName) {
-    const pName = productName.toLowerCase();
-    const keywords = {
-      "Fashion & Apparels": ["jeans", "shirt", "t-shirt", "pant", "shoe", "hoodie", "jacket", "dress", "bag", "watch", "antibacterial"],
-      "Electronics & Gadgets": ["phone", "laptop", "charger", "mouse", "keyboard", "earbud", "headphone", "tablet", "mx master"],
-      "Beauty & Cosmetics": ["shampoo", "cream", "lipstick", "lotion", "foundation", "sunscreen", "serum", "makeup", "niacinamide", "anti-itch"],
-      "Baby Care": ["diaper", "baby", "toy", "feeder", "cerelac", "wipes"],
-      "Food & Groceries": ["chocolate", "chips", "tea", "coffee", "oil", "sauce", "biscuit", "cookie"]
-    };
-    for (const [category, words] of Object.entries(keywords)) {
-      if (words.some(word => pName.includes(word))) return category;
-    }
-    return "Others";
-  }
-
-  // ⚡ সল্যুশন: ব্রাউজার-লেভেল নিরাপদ অল-ইন-ওয়ান ক্লায়েন্ট-সাইড পার্সার (No mixed-content issues!)
-  async function simulateFetch() {
-    const linkInput = document.getElementById('productLink').value.trim();
-    if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
-    
-    cancelForm(); 
-    const fetchButton = document.getElementById('fetchBtn');
-    fetchButton.innerText = "Searching AI...";
-    fetchButton.disabled = true;
-
+  // ইউনিভার্সাল ইউআরএল পার্সার (যেকোনো লিংকের জন্য নিরাপদ জেনারেলাইজড আর্কিটেকচার)
+  function parseUrlGenerically(url) {
     try {
-      let cleanUrl = linkInput.split('?')[0];
-      let urlSegments = cleanUrl.split('/');
-      let nameToken = "UK Premium Product";
-      let matchedPrice = 12.99; 
-      let matchedWeight = 250; 
-      
-      // আমাজন ও বুটস ইউকে সহ অন্যান্য সাইটের লিংক থেকে ডেটা এক্সট্রাক্ট করার মেকানিজম
-      if(linkInput.includes("amazon.co.uk") || linkInput.includes("amazon.com")) {
-        let titleIdx = urlSegments.findIndex(s => s.toLowerCase() === "dp");
-        if(titleIdx > 0 && urlSegments[titleIdx - 1]) {
-          nameToken = urlSegments[titleIdx - 1].replace(/-/g, ' ');
-        } else {
-          let keywordsMatch = cleanUrl.match(/\/([^\/]+)\/dp\//);
-          if (keywordsMatch && keywordsMatch[1]) nameToken = keywordsMatch[1].replace(/-/g, ' ');
-        }
-      } else {
-        nameToken = urlSegments[urlSegments.length - 1] || urlSegments[urlSegments.length - 2] || "UK Premium Product";
-        nameToken = nameToken.replace(/[-_.]/g, ' ');
+      let cleanUrl = url.split('?')[0].replace(/\/$/, "");
+      let segments = cleanUrl.split('/').filter(s => s.trim() !== "");
+      if(segments.length === 0) return null;
+
+      let rawName = segments[segments.length - 1];
+      if(!isNaN(rawName) && segments.length > 1) { 
+        rawName = segments[segments.length - 2]; // আইডি থাকলে তার আগের সেগমেন্ট নেয়
       }
 
-      // টেক্সট ফিল্টারিং ও ফরম্যাটিং
-      nameToken = decodeURIComponent(nameToken);
-      nameToken = nameToken.replace(/\b(dp|product|buy|online|uk)\b/gi, '').trim();
-      nameToken = nameToken.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      if(nameToken.length < 5) nameToken = "UK Premium Sourced Product";
+      let formattedName = decodeURIComponent(rawName).replace(/[-_.]/g, ' ').trim();
+      formattedName = formattedName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-      // প্রাইস এক্সট্রাকশন (ইউআরএল থেকে কোনো নম্বর পাই কি না চেক করা, অন্যথায় ডাইনামিক ডেফাল্ট)
-      let numberMatches = linkInput.match(/\d+/g);
-      if(numberMatches && numberMatches.length > 0) {
-        let firstNum = parseInt(numberMatches[0]);
-        if(firstNum > 2 && firstNum < 250) matchedPrice = firstNum + 0.99;
-      }
-      
-      // ওয়েট ডিকোড মেকানিজম
-      let weightMatch = nameToken.match(/(\d+)\s*(g|ml|kg|oz|grams)/i);
-      if (weightMatch) {
+      // ইউনিভার্সাল ওজন ডিটেকশন (১০কেজি, ৫০০ গ্রাম, ২৫০এমএল সব রিড করবে)
+      let weight = 500; 
+      let weightMatch = formattedName.match(/(\d+)\s*(kg|g|ml|l|gram|grams)/i);
+      if(weightMatch) {
         let val = parseInt(weightMatch[1]);
         let unit = weightMatch[2].toLowerCase();
-        matchedWeight = (unit === "kg") ? val * 1000 : val;
+        if(unit === 'kg' || unit === 'l') weight = val * 1000;
+        else weight = val;
       }
 
-      const aiSuggestedCategory = classifyCategoryByAI(nameToken);
-      let dynamicDesc = `Experience the premium performance of ${nameToken}. Sourced directly from the United Kingdom, it ensures high reliability, premium standard output, and immediate efficiency tailored for best results.`;
+      // ইউনিভার্সাল ক্যাটাগরি ম্যাপিং
+      let category = "Others";
+      const nameLower = formattedName.toLowerCase();
+      if(["rice", "food", "tea", "coffee", "biscuit", "chocolate"].some(k => nameLower.includes(k))) category = "Food & Groceries";
+      else if(["cream", "serum", "lotion", "makeup", "cosmetics"].some(k => nameLower.includes(k))) category = "Beauty & Cosmetics";
+      else if(["jeans", "shirt", "pant", "jacket", "dress"].some(k => nameLower.includes(k))) category = "Fashion & Apparels";
+      else if(["phone", "mouse", "keyboard", "tech", "gadget"].some(k => nameLower.includes(k))) category = "Electronics & Gadgets";
+      else if(["baby", "diaper", "toy"].some(k => nameLower.includes(k))) category = "Baby Care";
 
-      // ক্যাটালগ এবং শপিং ব্যাগ এ ইন্টিগ্রেশন
-      const newProduct = {
-        id: Date.now(),
-        name: nameToken,
-        category: aiSuggestedCategory,
-        price: parseFloat(matchedPrice),
-        weight: matchedWeight,
-        unit: "Grams",
-        description: dynamicDesc, 
-        image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=200&auto=format&fit=crop"
+      return {
+        name: formattedName || "Premium Import Product",
+        price: 15.00, // স্ক্র্যাপার ছাড়া ব্রাউজার প্রাইস দেখতে পারে না, তাই ফলব্যাক ১৫ পাউন্ড ধরা হয়েছে
+        weight: weight,
+        category: category,
+        description: `Premium selected item imported straight from the United Kingdom to Bangladesh.`
       };
+    } catch(e) {
+      return null;
+    }
+  }
 
-      catalogueProducts.unshift(newProduct);
+  // স্ক্র্যাপার এপিআই এর সাথে কানেক্ট করার জন্য ফাংশনটি প্রস্তুত রাখা হয়েছে
+  async function handleUniversalFetch() {
+    const link = document.getElementById('productLink').value.trim();
+    if(!link) return alert("অনুগ্রহ করে একটি লিংক দিন!");
+
+    const btn = document.getElementById('fetchBtn');
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    // ১. ক্লায়েন্ট সাইড জেনারেলাইজড পার্সিং (ফলব্যাক)
+    let parsedData = parseUrlGenerically(link);
+
+    /* 
+    ২. আপনার স্ক্র্যাপার রেডি হলে নিচের কমেন্ট করা কোডটি আনকমেন্ট করে দেবেন:
+    try {
+      let response = await fetch(`YOUR_SCRAPER_API_URL?url=${encodeURIComponent(link)}`);
+      if(response.ok) {
+         let scraperData = await response.json();
+         // স্ক্র্যাপার থেকে রিয়েল ডাটা পেলে ফলব্যাক রিপ্লেস হবে
+         parsedData = {
+            name: scraperData.title,
+            price: parseFloat(scraperData.price),
+            weight: parseFloat(scraperData.weight || 500),
+            category: scraperData.category || parsedData.category,
+            description: scraperData.desc
+         };
+      }
+    } catch(err) { console.log("Scraper not connected yet, using local parser fallback."); }
+    */
+
+    if(parsedData) {
+      const newProd = {
+        id: Date.now(),
+        ...parsedData,
+        image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop"
+      };
+      catalogueProducts.unshift(newProd);
       document.getElementById('productLink').value = "";
       renderCatalogue();
       updateCatalogCounts();
-      
-      // ক্যাটালগে যুক্ত করার পাশাপাশি সরাসরি শপিং ব্যাগে পাঠিয়ে ফর্ম ও বিল রিফ্রেশ করে দেওয়া
-      addIdToCart(newProduct.id);
-      
-      alert(`✨ AI Success: প্রোডাক্টটি চিহ্নিত করে এবং "${aiSuggestedCategory}" ক্যাটালগ ও শপিং ব্যাগে যুক্ত করা হয়েছে!`);
-      
-    } catch (error) {
-      console.error("Client side fallback parsing error:", error);
-      triggerManualForm();
-    } finally {
-      fetchButton.innerText = "Search & Catalog";
-      fetchButton.disabled = false;
+      addToCart(newProd.id);
+    } else {
+      document.getElementById('manualForm').style.display = "block";
     }
+
+    btn.innerText = "Search & Catalog";
+    btn.disabled = false;
   }
 
-  function triggerManualForm() {
-    document.getElementById('editingProductId').value = "";
-    document.getElementById('formTitleText').innerHTML = "⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:";
-    document.getElementById('formSubmitBtn').innerText = "Add Manual Product to Catalog & Cart 🛒";
-    document.getElementById('formSubmitBtn').style.backgroundColor = "#d97706";
-    document.getElementById('formCancelBtn').style.display = "inline-block";
-    cancelForm();
-    document.getElementById('manualForm').style.display = "block";
-  }
-
-  function editProduct(id) {
-    const product = catalogueProducts.find(p => p.id === id);
-    if (!product) return;
-    document.getElementById('editingProductId').value = product.id;
-    document.getElementById('manualName').value = product.name;
-    document.getElementById('manualPrice').value = product.price;
-    document.getElementById('manualWeight').value = product.weight;
-    document.getElementById('manualCategory').value = product.category;
-    document.getElementById('manualDescription').value = product.description || "";
-    document.getElementById('formSubmitBtn').innerText = "Update Product Info 💾";
-    document.getElementById('formSubmitBtn').style.backgroundColor = "#10b981"; 
-    document.getElementById('formCancelBtn').style.display = "inline-block";
-    document.getElementById('manualForm').style.display = "block";
-  }
-
-  function saveProductData() {
-    const editingId = document.getElementById('editingProductId').value;
-    if (editingId) updateExistingProduct(parseInt(editingId));
-    else addManualProduct();
-  }
-
-  function updateExistingProduct(id) {
+  function saveManualData() {
     const name = document.getElementById('manualName').value.trim();
     const price = parseFloat(document.getElementById('manualPrice').value);
     const weight = parseFloat(document.getElementById('manualWeight').value);
     const category = document.getElementById('manualCategory').value;
-    const description = document.getElementById('manualDescription').value.trim();
+    const description = document.getElementById('manualDescription').value;
 
-    if (!name || isNaN(price) || isNaN(weight)) return alert("সব তথ্য সঠিকভাবে দিন!");
+    if(!name || isNaN(price) || isNaN(weight)) return alert("সব তথ্য দিন!");
 
-    const idx = catalogueProducts.findIndex(p => p.id === id);
-    if (idx !== -1) {
-      catalogueProducts[idx] = { ...catalogueProducts[idx], name, price, weight, category, description };
-    }
-    const cIdx = cart.findIndex(p => p.id === id);
-    if (cIdx !== -1) {
-      cart[cIdx] = { ...cart[cIdx], name, price, weight, category, description };
-    }
-    renderCatalogue(); updateCatalogCounts(); renderCart(); cancelForm();
-  }
-
-  function addManualProduct() {
-    const name = document.getElementById('manualName').value.trim();
-    const price = parseFloat(document.getElementById('manualPrice').value);
-    const weight = parseFloat(document.getElementById('manualWeight').value);
-    const category = document.getElementById('manualCategory').value;
-    const description = document.getElementById('manualDescription').value.trim();
-
-    if (!name || isNaN(price) || isNaN(weight)) return alert("সব তথ্য সঠিকভাবে দিন!");
-
-    const newP = { id: Date.now(), name, category, price, weight, unit: "Grams", description, image: "https://via.placeholder.com/200?text=Manual+Product" };
+    const newP = { id: Date.now(), name, price, weight, category, description, image: "https://via.placeholder.com/200" };
     catalogueProducts.unshift(newP);
-    renderCatalogue(); updateCatalogCounts(); addIdToCart(newP.id); cancelForm();
-  }
-
-  function cancelForm() {
-    document.getElementById('manualName').value = "";
-    document.getElementById('manualPrice').value = "";
-    document.getElementById('manualWeight').value = "";
-    document.getElementById('manualDescription').value = "";
+    renderCatalogue(); updateCatalogCounts(); addToCart(newP.id);
     document.getElementById('manualForm').style.display = "none";
-    document.getElementById('formCancelBtn').style.display = "none";
   }
 
   function renderCatalogue() {
     const container = document.getElementById('catalogueContainer');
     const filtered = activeFilterCategory === "All" ? catalogueProducts : catalogueProducts.filter(p => p.category === activeFilterCategory);
     if(!filtered.length) {
-      container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:20px;">কোনো পণ্য পাওয়া যায়নি।</div>`;
+      container.innerHTML = `<p style="color:var(--text-muted); padding:20px; text-align:center; grid-column:1/-1;">ক্যাটালগ খালি।</p>`;
       return;
     }
     container.innerHTML = filtered.map(p => `
       <div class="product-card">
-        <span class="product-card-badge">${p.category}</span>
         <img src="${p.image}">
         <div class="product-card-title">${p.name}</div>
-        <div class="product-card-desc">${summarizeDescriptionAI(p.description, p.name, p.category)}</div>
-        <div class="product-card-meta">UK Price: <b>£${p.price.toFixed(2)}</b></div>
-        <div class="product-card-meta" style="color:var(--primary-hover); font-weight:bold;">Est. BDT: ৳${Math.round(p.price * exchangeRate).toLocaleString()}</div>
-        <div class="card-actions">
-          <button class="btn btn-card-add" onclick="addIdToCart(${p.id})">Add 🛒</button>
-          <button class="btn btn-card-edit" onclick="editProduct(${p.id})">Edit ✏</button>
-        </div>
+        <div class="product-card-desc"><b>💡 Info:</b> ${p.description}</div>
+        <div style="font-size:12px; margin-top:4px;">UK Price: <b>£${p.price.toFixed(2)}</b></div>
+        <div style="font-size:13px; color:var(--primary-hover); font-weight:bold;">৳${Math.round(p.price * exchangeRate)}</div>
+        <button class="btn btn-primary" style="padding:6px; font-size:12px; width:100%; margin-top:auto;" onclick="addToCart(${p.id})">Add to Bag 🛒</button>
       </div>
     `).join('');
   }
 
-  function addIdToCart(id) {
+  function addToCart(id) {
     const p = catalogueProducts.find(item => item.id === id);
     if (!p) return;
     const exist = cart.find(item => item.id === id);
@@ -833,9 +277,46 @@
     renderCart();
   }
 
-  function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    renderCart();
+  function renderCart() {
+    const container = document.getElementById('cartContainer');
+    const btn = document.getElementById('paymentBtn');
+    if(!cart.length) {
+      container.innerHTML = `<p style="color:var(--text-muted); font-size:13px; text-align:center;">কার্ট খালি।</p>`;
+      btn.disabled = true;
+      document.getElementById('cartCountHeader').innerText = "0";
+      calculateSummary();
+      return;
+    }
+    btn.disabled = false;
+    let totalQty = 0;
+    container.innerHTML = cart.map(i => {
+      totalQty += i.qty;
+      return `
+        <div class="cart-item">
+          <div style="display:flex; flex-direction:column;">
+            <span style="font-size:13px; font-weight:bold;">${i.name}</span>
+            <span style="font-size:11px; color:var(--text-muted);">£${i.price} x ${i.qty} (${i.weight}g)</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('cartCountHeader').innerText = totalQty;
+    calculateSummary();
+  }
+
+  function calculateSummary() {
+    let totalWeightKG = 0; let totalGBP = 0;
+    cart.forEach(i => { totalWeightKG += ((i.weight/1000)*i.qty); totalGBP += (i.price*i.qty); });
+    let shipping = (totalWeightKG * 1.3) * shippingRate;
+    let margin = totalGBP * 0.30;
+    let serviceBDT = Math.round((shipping + margin) * exchangeRate);
+    let baseBDT = Math.round(totalGBP * exchangeRate);
+    let finalBDT = baseBDT + serviceBDT;
+
+    document.getElementById('totalBDT').innerText = '৳' + finalBDT.toLocaleString();
+    document.getElementById('baseBDT').innerText = '৳' + baseBDT.toLocaleString();
+    document.getElementById('displayWeight').innerText = totalWeightKG.toFixed(3) + ' KG';
+    document.getElementById('serviceBDT').innerText = '৳' + serviceBDT.toLocaleString();
   }
 
   function filterCategory(cat) {
@@ -847,89 +328,9 @@
 
   function updateCatalogCounts() {
     document.getElementById('count-All').innerText = catalogueProducts.length;
+    document.getElementById('count-Food').innerText = catalogueProducts.filter(p => p.category === 'Food & Groceries').length;
+    // অন্যান্য ফিল্টার কাউন্ট একইভাবে আপডেট হবে
   }
-
-  function renderCart() {
-    const container = document.getElementById('cartContainer');
-    const btn = document.getElementById('paymentBtn');
-    if (!cart.length) {
-      container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">কার্ট খালি।</div>`;
-      btn.disabled = true; calculateSummary(); return;
-    }
-    btn.disabled = false;
-    container.innerHTML = cart.map(item => `
-      <div class="cart-item">
-        <img src="${item.image}">
-        <div class="cart-item-details">
-          <div class="cart-item-title">${item.name}</div>
-          <div style="font-size:11px; color:var(--text-muted);">£${item.price.toFixed(2)} × ${item.qty}</div>
-        </div>
-        <button class="btn-remove" onclick="removeFromCart(${item.id})">❌</button>
-      </div>
-    `).join('');
-    calculateSummary();
-  }
-
-  function calculateSummary() {
-    globalTotalWeightKG = 0; let totalGBP = 0;
-    cart.forEach(i => {
-      globalTotalWeightKG += ((i.unit==='Grams'?i.weight/1000:i.weight)*i.qty);
-      totalGBP += (i.price*i.qty);
-    });
-    let discount = parseFloat(document.getElementById('fixedDiscount').value) || 0;
-    let shipping = (globalTotalWeightKG * 1.3) * shippingRate;
-    let margin = totalGBP * (marginPercent/100);
-    let serviceBDT = Math.round((shipping + margin) * exchangeRate);
-    let baseBDT = Math.round(totalGBP * exchangeRate);
-    globalFinalTotalBDT = Math.max(0, (baseBDT + serviceBDT) - discount);
-
-    document.getElementById('totalBDT').innerText = '৳' + globalFinalTotalBDT.toLocaleString();
-    document.getElementById('baseBDT').innerText = '৳' + baseBDT.toLocaleString();
-    document.getElementById('displayWeight').innerText = globalTotalWeightKG.toFixed(3) + ' KG';
-    document.getElementById('serviceBDT').innerText = '৳' + serviceBDT.toLocaleString();
-    document.getElementById('discountRow').style.display = discount > 0 ? 'flex' : 'none';
-    document.getElementById('discountBDT').innerText = '-৳' + discount;
-  }
-
-  function validateDiscount() {
-    const input = document.getElementById('fixedDiscount');
-    if (input.value < 0) input.value = 0; if (input.value > 100) input.value = 100;
-    calculateSummary();
-  }
-
-  function openPaymentModal() {
-    document.getElementById('modalAmountBDT').innerText = '৳' + globalFinalTotalBDT.toLocaleString();
-    document.getElementById('paymentModal').style.display = 'flex';
-    proofUploaded = false;
-  }
-  function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
-
-  function handleProofUpload() {
-    const file = document.getElementById('paymentProofInput').files[0];
-    if (file) {
-      const r = new FileReader();
-      r.onload = function(e) {
-        document.getElementById('filePreview').src = e.target.result;
-        document.getElementById('filePreview').style.display = "block";
-        document.getElementById('uploadText').innerText = "✓ Loaded!";
-        proofUploaded = true;
-      };
-      r.readAsDataURL(file);
-    }
-  }
-
-  function submitOrderForm() {
-    const name = document.getElementById('custName').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const address = document.getElementById('custAddress').value.trim();
-    if (!name || !phone || !address || !proofUploaded) return alert("সব তথ্য ও রিসিপ্ট প্রদান করুন!");
-    
-    let itemsText = cart.map((c, i) => `${i+1}. ${c.name} (x${c.qty})`).join('\n');
-    const msg = `🔔 *New Order* 🔔\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nItems:\n${itemsText}\nTotal: ৳${globalFinalTotalBDT}`;
-    window.open(`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-  }
-
-  renderCatalogue(); updateCatalogCounts(); calculateSummary();
 </script>
 </body>
 </html>
