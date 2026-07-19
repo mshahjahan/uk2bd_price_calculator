@@ -636,8 +636,7 @@
     fetchButton.innerText = "Searching AI...";
     fetchButton.disabled = true;
     try {
-      // লোকালহোস্টে থাকা পাইথন সার্ভার এপিআই লিঙ্ক সেট করা হয়েছে
-      const apiURL = "http://127.0.0.1:5000/scrape"; 
+      const apiURL = "https://uk-calculator-scraper-api.onrender.com/scrape"; 
       const response = await fetch(apiURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
