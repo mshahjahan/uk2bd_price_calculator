@@ -706,7 +706,7 @@
     const linkInput = document.getElementById('productLink').value.trim();
     if (!linkInput) return alert('অনুগ্রহ করে প্রথমে একটি লিংক দিন!');
     
-    cancelForm(); // এডিটিং কোনো মোড খোলা থাকলে তা বন্ধ করে নতুন সার্চ সেশন চালু করবে
+    cancelForm(); 
     const fetchButton = document.getElementById('fetchBtn');
     fetchButton.innerText = "Searching AI...";
     fetchButton.disabled = true;
@@ -757,14 +757,12 @@
   function triggerManualForm() {
     alert("দুঃখিত, তথ্যটি স্বয়ংক্রিয়ভাবে স্ক্র্যাপ করা যায়নি। অনুগ্রহ করে ফর্মে প্রোডাক্টের সঠিক তথ্য দিয়ে ম্যানুয়ালি যোগ করুন।");
     
-    // ফর্মটিকে ম্যানুয়াল এন্ট্রি মোডে রূপান্তর করা হচ্ছে
     document.getElementById('editingProductId').value = "";
     document.getElementById('formTitleText').innerHTML = "⚠️ স্বয়ংক্রিয় তথ্য পাওয়া যায়নি। অনুগ্রহ করে ম্যানুয়ালি তথ্য দিন:";
     document.getElementById('formSubmitBtn').innerText = "Add Manual Product to Catalog & Cart 🛒";
     document.getElementById('formSubmitBtn').style.backgroundColor = "#d97706";
     document.getElementById('formCancelBtn').style.display = "inline-block";
     
-    // ইনপুট রিসেট
     document.getElementById('manualName').value = "";
     document.getElementById('manualPrice').value = "";
     document.getElementById('manualWeight').value = "";
@@ -772,15 +770,12 @@
     document.getElementById('manualForm').style.display = "block";
   }
 
-  // প্রোডাক্ট এডিট করতে ফর্ম ওপেন করার মেথড
   function editProduct(id) {
     const product = catalogueProducts.find(p => p.id === id);
     if (!product) return;
 
-    // স্ক্রল করে উপরে ফর্ম সেকশনে নিয়ে যাবে
     document.querySelector('.app-layout').scrollIntoView({ behavior: 'smooth' });
 
-    // ফর্মটিকে এডিট মোডে সাজানো হচ্ছে
     document.getElementById('editingProductId').value = product.id;
     document.getElementById('formTitleText').innerHTML = "✏️ পণ্য সম্পাদনা করুন (Editing Product Info):";
     
@@ -790,21 +785,18 @@
     document.getElementById('manualCategory').value = product.category;
 
     document.getElementById('formSubmitBtn').innerText = "Update Product Info 💾";
-    document.getElementById('formSubmitBtn').style.backgroundColor = "#10b981"; // সবুজ রঙের সেভ বাটন
+    document.getElementById('formSubmitBtn').style.backgroundColor = "#10b981"; 
     document.getElementById('formCancelBtn').style.display = "inline-block";
     
     document.getElementById('manualForm').style.display = "block";
   }
 
-  // ফর্মের ডেক্সিশন হ্যান্ডল করবে (নতুন পণ্য এড নাকি এডিটেড পণ্য সেভ)
   function saveProductData() {
     const editingId = document.getElementById('editingProductId').value;
 
     if (editingId) {
-      // এটি এডিটেড প্রোডাক্ট আপডেট করার প্রসেস
       updateExistingProduct(parseInt(editingId));
     } else {
-      // নতুন ম্যানুয়াল প্রোডাক্ট যুক্ত করার প্রসেস
       addManualProduct();
     }
   }
@@ -820,7 +812,6 @@
       return;
     }
 
-    // ১. ক্যাটালগের আইটেমটি খুঁজে বের করে আপডেট করা
     const catalogIndex = catalogueProducts.findIndex(p => p.id === id);
     if (catalogIndex !== -1) {
       catalogueProducts[catalogIndex].name = name;
@@ -829,7 +820,6 @@
       catalogueProducts[catalogIndex].category = category;
     }
 
-    // ২. কার্টের ভেতরে ঐ সেম পণ্যটি আগে থেকেই যোগ করা থাকলে তার ডাটাও আপডেট করা
     const cartIndex = cart.findIndex(p => p.id === id);
     if (cartIndex !== -1) {
       cart[cartIndex].name = name;
@@ -838,10 +828,9 @@
       cart[cartIndex].category = category;
     }
 
-    // UI রিফ্রেশ করা ও গণনা আপডেট
     renderCatalogue();
     updateCatalogCounts();
-    renderCart(); // কার্টের তথ্য ও রেন্ডার রিফ্রেশ করা যাতে বিলিং এ হুবহু কাজ করে
+    renderCart(); 
     cancelForm();
 
     alert("✨ পণ্যটির তথ্য সফলভাবে ক্যাটালগ ও কার্ট সেকশনে আপডেট করা হয়েছে!");
@@ -879,7 +868,6 @@
   }
 
   function cancelForm() {
-    // ফর্ম হাইড ও রিসেট করা
     document.getElementById('editingProductId').value = "";
     document.getElementById('manualName').value = "";
     document.getElementById('manualPrice').value = "";
@@ -897,12 +885,16 @@
     }
     let html = "";
     filteredProducts.forEach(product => {
+      // কনভার্শন রেট (৳১৭০.০০) দিয়ে BDT টাকার মান হিসাব করা হচ্ছে
+      const priceBDT = Math.round(product.price * exchangeRate);
+      
       html += `
         <div class="product-card">
           <span class="product-card-badge">${product.category}</span>
           <img src="${product.image}" alt="img">
           <div class="product-card-title">${product.name}</div>
-          <div class="product-card-meta">Price: <b>£${product.price.toFixed(2)}</b></div>
+          <div class="product-card-meta">UK Price: <b>£${product.price.toFixed(2)}</b></div>
+          <div class="product-card-meta" style="color: var(--primary-hover); font-weight: bold;">Est. BDT: ৳${priceBDT.toLocaleString()}</div>
           <div class="product-card-meta">Est. Weight: ${product.weight} ${product.unit}</div>
           <div class="card-actions">
             <button class="btn btn-card-add" onclick="addIdToCart(${product.id})">Add 🛒</button>
