@@ -24,6 +24,7 @@
     .brand span { background-color: #fca5a5; color: #991b1b; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; }
     .app-layout { display: grid; grid-template-columns: 260px 1fr 350px; gap: 20px; max-width: 1440px; margin: 20px auto; padding: 0 16px; width: 100%; }
     .sidebar { display: flex; flex-direction: column; gap: 12px; }
+    .sidebar-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
     .category-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
     .category-item { padding: 12px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: #334155; background: var(--card-bg); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
     .category-item:hover, .category-item.active { background-color: var(--primary); color: white; border-color: var(--primary); transform: translateX(4px); }
@@ -62,7 +63,7 @@
 <body>
 
 <header>
-  <div class="brand">🛍️ বিলেতী পণ্য <span>Premium Storefront</span></div>
+  <div class="brand">🛍️ বিলেতী পণ্য <span>Universal Storefront</span></div>
   <div class="exchange-rate-box">£1 = ৳170.00</div>
 </header>
 
@@ -140,99 +141,55 @@
   let cart = [];
   let activeFilterCategory = "All";
 
-  // ইউনিভার্সাল ইউআরএল পার্সার (যেকোনো লিংকের জন্য নিরাপদ জেনারেলাইজড আর্কিটেকচার)
-  function parseUrlGenerically(url) {
-    try {
-      let cleanUrl = url.split('?')[0].replace(/\/$/, "");
-      let segments = cleanUrl.split('/').filter(s => s.trim() !== "");
-      if(segments.length === 0) return null;
-
-      let rawName = segments[segments.length - 1];
-      if(!isNaN(rawName) && segments.length > 1) { 
-        rawName = segments[segments.length - 2]; // আইডি থাকলে তার আগের সেগমেন্ট নেয়
-      }
-
-      let formattedName = decodeURIComponent(rawName).replace(/[-_.]/g, ' ').trim();
-      formattedName = formattedName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-      // ইউনিভার্সাল ওজন ডিটেকশন (১০কেজি, ৫০০ গ্রাম, ২৫০এমএল সব রিড করবে)
-      let weight = 500; 
-      let weightMatch = formattedName.match(/(\d+)\s*(kg|g|ml|l|gram|grams)/i);
-      if(weightMatch) {
-        let val = parseInt(weightMatch[1]);
-        let unit = weightMatch[2].toLowerCase();
-        if(unit === 'kg' || unit === 'l') weight = val * 1000;
-        else weight = val;
-      }
-
-      // ইউনিভার্সাল ক্যাটাগরি ম্যাপিং
-      let category = "Others";
-      const nameLower = formattedName.toLowerCase();
-      if(["rice", "food", "tea", "coffee", "biscuit", "chocolate"].some(k => nameLower.includes(k))) category = "Food & Groceries";
-      else if(["cream", "serum", "lotion", "makeup", "cosmetics"].some(k => nameLower.includes(k))) category = "Beauty & Cosmetics";
-      else if(["jeans", "shirt", "pant", "jacket", "dress"].some(k => nameLower.includes(k))) category = "Fashion & Apparels";
-      else if(["phone", "mouse", "keyboard", "tech", "gadget"].some(k => nameLower.includes(k))) category = "Electronics & Gadgets";
-      else if(["baby", "diaper", "toy"].some(k => nameLower.includes(k))) category = "Baby Care";
-
-      return {
-        name: formattedName || "Premium Import Product",
-        price: 15.00, // স্ক্র্যাপার ছাড়া ব্রাউজার প্রাইস দেখতে পারে না, তাই ফলব্যাক ১৫ পাউন্ড ধরা হয়েছে
-        weight: weight,
-        category: category,
-        description: `Premium selected item imported straight from the United Kingdom to Bangladesh.`
-      };
-    } catch(e) {
-      return null;
-    }
-  }
-
-  // স্ক্র্যাপার এপিআই এর সাথে কানেক্ট করার জন্য ফাংশনটি প্রস্তুত রাখা হয়েছে
   async function handleUniversalFetch() {
     const link = document.getElementById('productLink').value.trim();
     if(!link) return alert("অনুগ্রহ করে একটি লিংক দিন!");
 
     const btn = document.getElementById('fetchBtn');
-    btn.innerText = "Processing...";
+    btn.innerText = "Processing AI Scraper...";
     btn.disabled = true;
 
-    // ১. ক্লায়েন্ট সাইড জেনারেলাইজড পার্সিং (ফলব্যাক)
-    let parsedData = parseUrlGenerically(link);
-
-    /* 
-    ২. আপনার স্ক্র্যাপার রেডি হলে নিচের কমেন্ট করা কোডটি আনকমেন্ট করে দেবেন:
     try {
-      let response = await fetch(`YOUR_SCRAPER_API_URL?url=${encodeURIComponent(link)}`);
+      let response = await fetch('http://127.0.0.1:8000/api/scrape', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ url: link })
+      });
+      
       if(response.ok) {
          let scraperData = await response.json();
-         // স্ক্র্যাপার থেকে রিয়েল ডাটা পেলে ফলব্যাক রিপ্লেস হবে
-         parsedData = {
+         
+         const newProd = {
+            id: Date.now(),
             name: scraperData.title,
             price: parseFloat(scraperData.price),
-            weight: parseFloat(scraperData.weight || 500),
-            category: scraperData.category || parsedData.category,
-            description: scraperData.desc
+            weight: parseFloat(scraperData.weight),
+            category: scraperData.category,
+            description: scraperData.desc,
+            image: scraperData.image
          };
+         
+         catalogueProducts.unshift(newProd);
+         document.getElementById('productLink').value = "";
+         renderCatalogue();
+         updateCatalogCounts();
+         addToCart(newProd.id);
+         
+         if(scraperData.is_fallback) {
+            alert(`ℹ️ সাইট প্রটেক্টেড থাকায় এআই জেনারেলাইজড মেথডে ডেটা তৈরি করা হয়েছে!`);
+         } else {
+            alert(`✨ Live Scraped Success: পণ্যটি সফলভাবে ব্যাকএন্ড থেকে ক্যাটালগে যুক্ত হয়েছে!`);
+         }
+      } else {
+         document.getElementById('manualForm').style.display = "block";
       }
-    } catch(err) { console.log("Scraper not connected yet, using local parser fallback."); }
-    */
-
-    if(parsedData) {
-      const newProd = {
-        id: Date.now(),
-        ...parsedData,
-        image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop"
-      };
-      catalogueProducts.unshift(newProd);
-      document.getElementById('productLink').value = "";
-      renderCatalogue();
-      updateCatalogCounts();
-      addToCart(newProd.id);
-    } else {
+    } catch(err) {
+      console.error("Backend offline, open manual form");
       document.getElementById('manualForm').style.display = "block";
+    } finally {
+      btn.innerText = "Search & Catalog";
+      btn.disabled = false;
     }
-
-    btn.innerText = "Search & Catalog";
-    btn.disabled = false;
   }
 
   function saveManualData() {
@@ -329,7 +286,11 @@
   function updateCatalogCounts() {
     document.getElementById('count-All').innerText = catalogueProducts.length;
     document.getElementById('count-Food').innerText = catalogueProducts.filter(p => p.category === 'Food & Groceries').length;
-    // অন্যান্য ফিল্টার কাউন্ট একইভাবে আপডেট হবে
+    document.getElementById('count-Fashion').innerText = catalogueProducts.filter(p => p.category === 'Fashion & Apparels').length;
+    document.getElementById('count-Electronics').innerText = catalogueProducts.filter(p => p.category === 'Electronics & Gadgets').length;
+    document.getElementById('count-Beauty').innerText = catalogueProducts.filter(p => p.category === 'Beauty & Cosmetics').length;
+    document.getElementById('count-Baby').innerText = catalogueProducts.filter(p => p.category === 'Baby Care').length;
+    document.getElementById('count-Others').innerText = catalogueProducts.filter(p => p.category === 'Others').length;
   }
 </script>
 </body>
